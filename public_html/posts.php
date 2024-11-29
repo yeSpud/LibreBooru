@@ -509,33 +509,37 @@ if ($action == "s" || $action == "i") {
 
         // Insert new tags and log history
         foreach ($tagsToAdd as $tag) {
-            $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
-            $stmt->bind_param("s", $tag);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $category = determineCategory($tag);
-            if ($result->num_rows == 0) {
-                // Insert new tag if it doesn't exist
-                $stmt = $conn->prepare("INSERT INTO tags (tag_name, category) VALUES (?, ?)");
-                $stmt->bind_param("ss", $tag, $category);
+            $tag = trim(strtolower($tag));
+            if (!empty($tag)) {
+                $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
+                $stmt->bind_param("s", $tag);
                 $stmt->execute();
-                $tagId = $stmt->insert_id;
-            } else {
-                $tagId = $result->fetch_assoc()["tag_id"];
+                $result = $stmt->get_result();
+                $category = determineCategory($tag);
+                $tag = preg_replace("/(copyright|artist|character|general|meta|other):/", "", $tag);
+                if ($result->num_rows == 0) {
+                    // Insert new tag if it doesn't exist
+                    $stmt = $conn->prepare("INSERT INTO tags (tag_name, category) VALUES (?, ?)");
+                    $stmt->bind_param("ss", $tag, $category);
+                    $stmt->execute();
+                    $tagId = $stmt->insert_id;
+                } else {
+                    $tagId = $result->fetch_assoc()["tag_id"];
+                }
+                $stmt->close();
+
+                // Associate tag with post
+                $stmt = $conn->prepare("INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)");
+                $stmt->bind_param("ii", $id, $tagId);
+                $stmt->execute();
+                $stmt->close();
+
+                // Log tag addition
+                $stmt = $conn->prepare("INSERT INTO tag_history (post_id, tag_id, action, user_id, commit_id) VALUES (?, ?, 'add', ?, ?)");
+                $stmt->bind_param("iiis", $id, $tagId, $user["user_id"], $commitId);
+                $stmt->execute();
+                $stmt->close();
             }
-            $stmt->close();
-
-            // Associate tag with post
-            $stmt = $conn->prepare("INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)");
-            $stmt->bind_param("ii", $id, $tagId);
-            $stmt->execute();
-            $stmt->close();
-
-            // Log tag addition
-            $stmt = $conn->prepare("INSERT INTO tag_history (post_id, tag_id, action, user_id, commit_id) VALUES (?, ?, 'add', ?, ?)");
-            $stmt->bind_param("iiis", $id, $tagId, $user["user_id"], $commitId);
-            $stmt->execute();
-            $stmt->close();
         }
 
         // Remove old tags and log history
