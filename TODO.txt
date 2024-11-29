@@ -1,0 +1,11 @@
+| API KEY
+Add an API key for every user that allows them to upload posts
+externally, e.g. a Tampermonkey script.
+
+| search_max_tags
+Maybe make it level-based, so users with different levels can
+have different amount of big searches. (English wow)
+
+| LOCKED
+Check if a Wiki tag is locked, that it really is not editable by
+someone who isn't at least a moderator, idk and I'm lazy OwO

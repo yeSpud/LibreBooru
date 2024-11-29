@@ -1,0 +1,390 @@
+/* Responsive layout */
+
+@media (max-width: 1400px) {
+  .gallery {
+    gap: 8px;
+  }
+  .gallery .column {
+    flex: 1 1 18%; /* 4 columns on medium screens */
+  }
+  .gallery a img {
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .gallery {
+    gap: 8px;
+  }
+  .gallery .column {
+    flex: 1 1 22%; /* 4 columns on medium screens */
+  }
+  .gallery a img {
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 800px) {
+  .gallery .column {
+    flex: 1 1 32%; /* 3 columns on smaller screens */
+  }
+  .gallery a img {
+    margin-bottom: 3px;
+  }
+  .with_sidebar .sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .gallery .column {
+    flex: 1 1 48%; /* 1 column on very small screens */
+  }
+  .gallery a img {
+    margin-bottom: 0px;
+  }
+}
+
+/* General */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  display: block;
+}
+
+.container {
+  position: relative;
+  /*height: 100%;*/
+}
+
+.content {
+  padding-top: 10px;
+  padding-bottom: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.spoiler {
+  color: black;
+  background-color: black;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+.spoiler::selection {
+  background-color: transparent;
+}
+
+.spoiler:hover {
+  color: white;
+  cursor: none;
+}
+
+h1 {
+  line-height: 0.1;
+}
+
+h2 {
+  line-height: 0.2;
+  padding: 0px;
+  margin: 0px;
+  margin-top: 15px;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.m-0 {
+  margin: 0px;
+}
+
+.mt-5 {
+  margin-top: 5px;
+}
+
+.mt-7 {
+  margin-top: 7px;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+.mb-5 {
+  margin-bottom: 5px;
+}
+
+.p-0 {
+  padding: 0px;
+}
+
+.pr-0 {
+  padding-right: 0px;
+}
+
+.pl-0 {
+  padding-left: 0px;
+}
+
+.pl-7 {
+  padding-left: 7px;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  border-radius: 2px;
+  border: 1px solid black;
+}
+
+.small {
+  font-size: small;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Menu */
+
+.title_menu {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.top_menu {
+  display: flex;
+  align-items: start;
+  gap: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.top_menu a {
+  padding: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.top_menu a.active {
+  background-color: blue;
+  color: white;
+  font-weight: bold;
+}
+
+.sub_menu {
+  background-color: blue;
+  font-size: small;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.sub_menu .items {
+  display: flex;
+  align-items: start;
+  gap: 15px;
+}
+
+.sub_menu a {
+  color: white;
+}
+
+/* Posts */
+
+.with_sidebar {
+  display: flex;
+  gap: 10px;
+}
+
+.with_sidebar .sidebar {
+  flex: 1 0 255px; /* Sidebar takes at least 200px */
+  max-width: 255px; /* Sidebar will not exceed 300px */
+}
+
+.with_sidebar .main_content {
+  flex: 6; /* Main content takes 4 fractions */
+}
+
+.gallery {
+  display: flex;
+  justify-content: space-between; /* Distribute columns evenly */
+  gap: 10px;
+  flex-wrap: wrap; /* Allow columns to wrap if necessary (on smaller screens) */
+}
+
+.gallery .column {
+  flex: 1; /* Each column takes up 1 fraction of available space */
+  display: flex;
+  flex-direction: column; /* Stack images vertically in the column */
+}
+
+.gallery a img {
+  width: 100%; /* Ensure images fill the column width */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover;
+  margin-bottom: 5px;
+  border-radius: 0px;
+}
+
+/* Errors */
+
+.error {
+  background-color: red;
+  color: white;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.error a {
+  color: white;
+  text-decoration: underline;
+}
+
+.error_success {
+  background-color: green;
+  color: white;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.error_success a {
+  color: white;
+  text-decoration: underline;
+}
+
+.error_info {
+  background-color: blue;
+  color: white;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.error_info a {
+  color: white;
+  text-decoration: underline;
+}
+
+.error_warning {
+  background-color: orange;
+  color: white;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.error_warning a {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Toasts */
+
+.toast_container {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.toast {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+.toast_success {
+  background-color: green;
+}
+
+.toast_error {
+  background-color: red;
+}
+
+.toast_info {
+  background-color: blue;
+}
+
+.toast_warning {
+  background-color: orange;
+}
+
+/* Tables */
+
+.history_table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history_table th {
+  background-color: blue;
+  color: white;
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 2px;
+}
+
+.history_table td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 2px;
+}
+
+.history_table tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Locale Selector */
+
+.localeSelectorMenu {
+  position: absolute;
+  z-index: 1000;
+  display: none;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  width: auto;
+}
+
+.localeSelectorMenu a {
+  display: block;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.localeSelectorMenu a:hover {
+  background-color: #f0f0f0;
+  text-decoration: none;
+}
+
+.localeSelectorMenu.top {
+  bottom: 84%;
+}
+
+.split {
+  display: flex;
+  gap: 5px;
+}
+
+.split .element {
+  flex: 1 1 25%; /* Each element takes up 25% of the container width */
+}

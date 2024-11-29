@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /uploads/
+Disallow: /uploads/crops/
+Disallow: /uploads/images/
+Disallow: /uploads/thumbs/
+Disallow: /uploads/tmp/
+Disallow: /uploads/videos/

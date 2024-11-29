@@ -1,0 +1,7 @@
+- Read our [terms of service](/extra.php?a=o) before continuing. This has been updated to reflect recent changes in our policy.
+- Rate images appropriately. If you wouldn't look at it in front of your family, then it is probably not safe.
+- Our site is mainly anime/cartoon related. Do not upload real porn, deepfakes or photo realistic AI content.
+- Please do not upload anything that looks underage.
+- Tag your images that you are going to upload with at least 5 tags! Tag correctly or you will be banned.
+- Any post may not be listed right away and may need approval.
+- Do not upload copyrighted content. For example patreon and fanbox content are copyrighted works. This is already outlined in our ToS but this is a reminder that uploading copyright works will lead to a suspention on your account.

@@ -1,0 +1,23 @@
+.container {
+  height: 100%;
+}
+
+.home_container {
+  width: 400px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.home_search {
+  display: flex;
+}
+
+.home_menu {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 0.9em;
+}

@@ -1,0 +1,8 @@
+
+/__init/.smarty
+*.env
+/public_html/uploads
+/software/parsedown
+/software/smarty
+public_html/assets/classic/js/jquery.min.js
+/__init/.tmp

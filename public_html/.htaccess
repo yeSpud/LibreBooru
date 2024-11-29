@@ -1,0 +1,5 @@
+<FilesMatch "\.(jpg|jpeg|png|gif|bmp|tiff)$">
+  Header set X-Robots-Tag "noindex, nofollow"
+</FilesMatch>
+
+Options -MultiViews -Indexes
