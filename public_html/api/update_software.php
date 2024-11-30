@@ -54,10 +54,10 @@ if (!file_exists($tmpPath)) {
 if (!file_exists($tmpPathOld)) {
     mkdir($tmpPathOld, 0777, true);
 }
+
 foreach ($requiresUpdates as $update) {
     $currentUpdateFile = __DIR__ . "/../../" . $update;
     $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru/refs/heads/" . $branche . "/" . $update;
-    //echo "Got File: " . $updateFile . "\n";
     if (file_exists($currentUpdateFile)) {
         $currentUpdateData = file_get_contents($currentUpdateFile);
         $currentUpdatePath = $tmpPathOld . "/" . $update;
@@ -68,7 +68,6 @@ foreach ($requiresUpdates as $update) {
         }
 
         file_put_contents($currentUpdatePath, $currentUpdateData);
-        $diff = true;
     }
 
     $updateData = file_get_contents($updateFile);
@@ -81,9 +80,7 @@ foreach ($requiresUpdates as $update) {
 
     file_put_contents($updatePath, $updateData);
 
-    if (!isset($diff)) {
-        $diff = shell_exec("diff -u " . $currentUpdatePath . " " . $updatePath);
-    }
+    $diff = shell_exec("diff -u " . $currentUpdatePath . " " . $updatePath);
 
     if ($diff) {
         $updatePath = __DIR__ . "/../../" . $update;
@@ -93,27 +90,13 @@ foreach ($requiresUpdates as $update) {
             mkdir($updateDir, 0777, true);
         }
 
+        echo "Updating: " . $update . "\n";
         file_put_contents($updatePath, $updateData);
+    } else {
+        echo "No changes: " . $update . "\n";
     }
 }
 
 $vewVersion = $branche === "devel" ? $latestDevelVersion : $latestStableVersion;
 $versionFile = __DIR__ . "/../../version";
 file_put_contents($versionFile, $vewVersion);
-
-// Returns JSON like this:
-/* [
-  "functions.php",
-  "locales/de.json",
-  "public_html/assets/classic/main.css",
-  "public_html/assets/classic/Noto_Serif/NotoSerif-Italic-VariableFont_wdth,wght.ttf",
-  "public_html/assets/classic/Noto_Serif/NotoSerif-VariableFont_wdth,wght.ttf",
-  "public_html/assets/classic/Noto_Serif/OFL.txt",
-  "public_html/assets/classic/Noto_Serif/README.txt",
-  "public_html/posts.php",
-  "templates/classic/pages/posts_index.tpl",
-  "templates/classic/parts/footer.tpl",
-  "README.txt",
-  "TODO.txt"
-]
-*/

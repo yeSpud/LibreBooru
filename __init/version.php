@@ -9,7 +9,7 @@ if (!file_exists($versionFile)) {
     die("Missing version file.");
 }
 
-$version = file_get_contents($versionFile);
+$version = trim(file_get_contents($versionFile));
 if ($version === false) {
     die("Failed to read version file.");
 }
