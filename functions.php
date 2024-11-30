@@ -452,19 +452,19 @@ function getPosts($conn, $tags, $limit, $offset, $rating = "all", $status = "awa
     }
 
     if ($status == "awaiting") {
-        $ratingCondition = " AND posts.is_approved = 0 AND posts.deleted = 0";
+        $ratingCondition .= " AND posts.is_approved = 0 AND posts.deleted = 0";
     } elseif ($status == "approved") {
-        $ratingCondition = " AND posts.is_approved = 1 AND posts.deleted = 0";
+        $ratingCondition .= " AND posts.is_approved = 1 AND posts.deleted = 0";
     } elseif ($status == "deleted") {
-        $ratingCondition = " AND posts.deleted = 1";
+        $ratingCondition .= " AND posts.deleted = 1";
     } elseif ($status == "awaiting|deleted") {
-        $ratingCondition = " AND (posts.is_approved = 0 OR posts.deleted = 1)";
+        $ratingCondition .= " AND (posts.is_approved = 0 OR posts.deleted = 1)";
     } elseif ($status == "approved|deleted") {
-        $ratingCondition = " AND (posts.is_approved = 1 OR posts.deleted = 1)";
+        $ratingCondition .= " AND (posts.is_approved = 1 OR posts.deleted = 1)";
     } elseif ($status == "awaiting|approved|deleted") {
-        $ratingCondition = " AND (posts.is_approved = 0 OR posts.is_approved = 1 OR posts.deleted = 1)";
+        $ratingCondition .= " AND (posts.is_approved = 0 OR posts.is_approved = 1 OR posts.deleted = 1)";
     } else {
-        $ratingCondition = " AND (posts.is_approved = 0 OR posts.is_approved = 1) AND posts.deleted = 0";
+        $ratingCondition .= " AND (posts.is_approved = 0 OR posts.is_approved = 1) AND posts.deleted = 0";
     }
 
     if (!empty($user)) {

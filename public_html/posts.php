@@ -366,6 +366,13 @@ if ($action == "s" || $action == "i") {
         $post["tags"][] = $tagRow["tag_name"];
     }
 
+    // Now sort allTags[category] by name asc
+    foreach ($allTags as $category => $tags) {
+        usort($allTags[$category], function ($a, $b) {
+            return $a["name"] <=> $b["name"];
+        });
+    }
+
     $tagStmt->close();
 
     $post["tags"] = implode(" ", $post["tags"]);
@@ -518,12 +525,12 @@ if ($action == "s" || $action == "i") {
         foreach ($tagsToAdd as $tag) {
             $tag = trim(strtolower($tag));
             if (!empty($tag)) {
+                $category = determineCategory($tag);
+                $tag = preg_replace("/(copyright|artist|character|general|meta|other):/", "", $tag);
                 $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
                 $stmt->bind_param("s", $tag);
                 $stmt->execute();
                 $result = $stmt->get_result();
-                $category = determineCategory($tag);
-                $tag = preg_replace("/(copyright|artist|character|general|meta|other):/", "", $tag);
                 if ($result->num_rows == 0) {
                     // Insert new tag if it doesn't exist
                     $stmt = $conn->prepare("INSERT INTO tags (tag_name, category) VALUES (?, ?)");
