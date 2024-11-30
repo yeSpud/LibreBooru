@@ -45,7 +45,58 @@ foreach ($updateOrder as $update) {
     $updateData = json_decode(file_get_contents($updateFile), true);
     $requiresUpdates = array_merge($requiresUpdates, $updateData);
 }
-print_r($requiresUpdates);
+
+$tmpPath = __DIR__ . "/../../__init/.tmp/update";
+$tmpPathOld = __DIR__ . "/../../__init/.tmp/update_old";
+if (!file_exists($tmpPath)) {
+    mkdir($tmpPath, 0777, true);
+}
+if (!file_exists($tmpPathOld)) {
+    mkdir($tmpPathOld, 0777, true);
+}
+foreach ($requiresUpdates as $update) {
+    $currentUpdateFile = __DIR__ . "/../../" . $update;
+    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru/refs/heads/" . $branche . "/" . $update;
+    //echo "Got File: " . $updateFile . "\n";
+    if (file_exists($currentUpdateFile)) {
+        $currentUpdateData = file_get_contents($currentUpdateFile);
+        $currentUpdatePath = $tmpPathOld . "/" . $update;
+        $currentUpdateDir = dirname($currentUpdatePath);
+
+        if (!file_exists($currentUpdateDir)) {
+            mkdir($currentUpdateDir, 0777, true);
+        }
+
+        file_put_contents($currentUpdatePath, $currentUpdateData);
+        $diff = true;
+    }
+
+    $updateData = file_get_contents($updateFile);
+    $updatePath = $tmpPath . "/" . $update;
+    $updateDir = dirname($updatePath);
+
+    if (!file_exists($updateDir)) {
+        mkdir($updateDir, 0777, true);
+    }
+
+    file_put_contents($updatePath, $updateData);
+
+    if (!isset($diff)) {
+        $diff = shell_exec("diff -u " . $currentUpdatePath . " " . $updatePath);
+    }
+
+    if ($diff) {
+        $updatePath = __DIR__ . "/../../" . $update;
+        $updateDir = dirname($updatePath);
+
+        if (!file_exists($updateDir)) {
+            mkdir($updateDir, 0777, true);
+        }
+
+        file_put_contents($updatePath, $updateData);
+    }
+    // ONly change files that have a difference
+}
 
 // Returns JSON like this:
 /* [
