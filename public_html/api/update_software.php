@@ -95,8 +95,11 @@ foreach ($requiresUpdates as $update) {
 
         file_put_contents($updatePath, $updateData);
     }
-    // ONly change files that have a difference
 }
+
+$vewVersion = $branche === "devel" ? $latestDevelVersion : $latestStableVersion;
+$versionFile = __DIR__ . "/../../version";
+file_put_contents($versionFile, $vewVersion);
 
 // Returns JSON like this:
 /* [
