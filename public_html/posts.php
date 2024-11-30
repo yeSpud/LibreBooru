@@ -33,8 +33,15 @@ if ($action == "s" || $action == "i") {
     if (strpos($searchTerm, "rating:") !== false) {
         $rating = explode(" ", explode("rating:", $searchTerm)[1])[0];
         $rating = validateRating(strtolower(trim($rating)));
-        // Not necessary anymore since we filter this out in getTags
-        //$searchTerm = str_replace("rating:$rating", "", $searchTerm);
+    }
+
+    $status = "awaiting|approved";
+    if (in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+        $status = "awaiting|approved|deleted";
+    }
+    if (strpos($searchTerm, "status:") !== false) {
+        $status = explode(" ", explode("status:", $searchTerm)[1])[0];
+        $status = determineStatus(strtolower(trim($status)), $permissions);
     }
 
     $searchUser = 0;
@@ -56,13 +63,13 @@ if ($action == "s" || $action == "i") {
     if ($count > $config["search_max_tags"]) {
         $errors[] = "You can only search for up to " . $config["search_max_tags"] . " tags at a time.";
     }
-    if (empty($tags) && ($searchTerm != '' && $searchTerm != '*' && !str_contains($searchTerm, 'rating:') && !str_contains($searchTerm, 'user:'))) {
+    if (empty($tags) && ($searchTerm != '' && $searchTerm != '*' && !str_contains($searchTerm, 'rating:') && !str_contains($searchTerm, 'user:') && !str_contains($searchTerm, "status:"))) {
         $posts = [];
         $allTags = [];
         $totalPosts = 0;
         $totalPages = 0;
     } else {
-        $_posts = getPosts($conn, $tags, $perpage, $offset, $rating, $searchUser);
+        $_posts = getPosts($conn, $tags, $perpage, $offset, $rating, $status, $searchUser);
         $posts = $_posts[0];
         $allTags = $_posts[2];
 

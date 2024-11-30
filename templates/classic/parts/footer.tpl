@@ -10,7 +10,7 @@
                 class="underline">'|cat:$lang["other_contributors"]|cat:'</a>']}
             </p>
             <span style="margin-left:auto;">
-                <a href="javascript:void" id="localeSelector">Language</a>
+                <a href="javascript:void" id="localeSelector">{$lang["language"]}</a>
             </span>
         </div>
     </div>

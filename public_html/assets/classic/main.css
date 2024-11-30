@@ -47,8 +47,25 @@
 
 /* General */
 
+@font-face {
+  font-family: "Noto Serif";
+  src: url("Noto_Serif/NotoSerif-VariableFont_wdth\,wght.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Noto Serif";
+  src: url("Noto_Serif/NotoSerif-Italic-VariableFont_wdth\,wght.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
 html,
 body {
+  font-family: "Noto Serif", serif;
   height: 100%;
   margin: 0;
   display: block;
