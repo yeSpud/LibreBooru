@@ -39,6 +39,47 @@ foreach ($versions as $vkey => $ver) {
     }
 }
 
+$sqlPath = __DIR__ . "/../../__init/.tmp/sql";
+if (!file_exists($sqlPath)) {
+    mkdir($sqlPath, 0777, true);
+}
+
+foreach ($updateOrder as $upOrder) {
+    $sqlFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/sql/update-{$upOrder}.sql";
+    // Check if file exists on GitHub
+    if (file_get_contents($sqlFile)) {
+        $sqlData = file_get_contents($sqlFile);
+        $sqlPath = $sqlPath . "/update-{$upOrder}.sql";
+        file_put_contents($sqlPath, $sqlData);
+        echo "<span style='color:blue'>[INFO] SQL:</span> " . $sqlPath . "<br>";
+
+        // Import the SQL file into the database
+        $sql = file_get_contents($sqlPath);
+
+        // Split the SQL code into individual statements
+        $sqlStatements = explode(';', $sql);
+
+        // Iterate through each statement and execute it separately
+        foreach ($sqlStatements as $statement) {
+            // Trim whitespace and skip empty statements
+            $statement = trim($statement);
+            if (empty($statement)) {
+                continue;
+            }
+
+            try {
+                if ($conn->query($statement)) {
+                    echo "<span style='color:green'>[DEBUG] Successfully executed:</span> $statement<br>";
+                } else {
+                    echo "<span style='color:red'>[DEBUG] Error executing:</span> $statement\nError: {$conn->error}<br>";
+                }
+            } catch (mysqli_sql_exception $e) {
+                echo "<span style='color:red'>[DEBUG] Exception on statement:</span> $statement\nError: " . $e->getMessage() . "<br>";
+            }
+        }
+    }
+}
+
 $requiresUpdates = [];
 foreach ($updateOrder as $update) {
     $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/update/{$update}.json";
@@ -47,22 +88,18 @@ foreach ($updateOrder as $update) {
 }
 
 if (empty($requiresUpdates)) {
-    echo $lang["no_updates_available"];
+    echo "<span style='color:blue'>[INFO] Info:</span>" . $lang["no_updates_available"];
     http_response_code(400);
     exit();
 }
 
 $tmpPath = __DIR__ . "/../../__init/.tmp/update";
 $tmpPathOld = __DIR__ . "/../../__init/.tmp/update_old";
-$sqlPath = __DIR__ . "/../../__init/.tmp/sql";
 if (!file_exists($tmpPath)) {
     mkdir($tmpPath, 0777, true);
 }
 if (!file_exists($tmpPathOld)) {
     mkdir($tmpPathOld, 0777, true);
-}
-if (!file_exists($sqlPath)) {
-    mkdir($sqlPath, 0777, true);
 }
 
 foreach ($requiresUpdates as $update) {
@@ -100,31 +137,10 @@ foreach ($requiresUpdates as $update) {
             mkdir($updateDir, 0777, true);
         }
 
-        echo "Updating: " . $update . "<br>";
+        echo "<span style='color:green'>[INFO] Updating:</span> " . $update . "<br>";
         file_put_contents($updatePath, $updateData);
     } else {
-        echo "No changes: " . $update . "<br>";
-    }
-
-    $sqlFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/sql/update-{$update}.sql";
-    // Check if file exists on GitHub
-    if (file_get_contents($sqlFile)) {
-        $sqlData = file_get_contents($sqlFile);
-        $sqlPath = $sqlPath . "/update-{$update}.sql";
-        file_put_contents($sqlPath, $sqlData);
-        echo "SQL: " . $sqlPath . "<br>";
-
-        // Import the SQL file into the database
-        $sql = file_get_contents($sqlPath);
-        if ($conn->multi_query($sql)) {
-            do {
-                if ($result = $conn->store_result()) {
-                    $result->free();
-                }
-            } while ($conn->next_result());
-        } else {
-            echo "Error executing SQL: " . $conn->error;
-        }
+        echo "<span style='color:blue'>[INFO] No changes:</span> " . $update . "<br>";
     }
 }
 
