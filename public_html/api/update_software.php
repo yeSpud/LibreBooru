@@ -97,6 +97,6 @@ foreach ($requiresUpdates as $update) {
     }
 }
 
-$vewVersion = $branche === "devel" ? $latestDevelVersion : $latestStableVersion;
+$newVersion = trim($branche === "devel" ? $latestDevelVersion : $latestStableVersion);
 $versionFile = __DIR__ . "/../../version";
-file_put_contents($versionFile, $vewVersion);
+file_put_contents($versionFile, $newVersion);
