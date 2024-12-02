@@ -24,7 +24,7 @@
         <p class="m-0 p-0">{$lang["latest_devel_version"]}: {$latestDevelVersion}</p>
         <button onclick="updateSystem();" id="update_button">{$lang["perform_update"]}</button>
         <div class="mt-10" id="update_output_container" style="display: none; border: 1px solid black;"><code
-                id="update_output" style="padding: 5px">Updating...</code></div>
+                id="update_output">Updating...</code></div>
     {/if}
 </div>
 

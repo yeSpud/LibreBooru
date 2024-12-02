@@ -54,11 +54,15 @@ if (empty($requiresUpdates)) {
 
 $tmpPath = __DIR__ . "/../../__init/.tmp/update";
 $tmpPathOld = __DIR__ . "/../../__init/.tmp/update_old";
+$sqlPath = __DIR__ . "/../../__init/.tmp/sql";
 if (!file_exists($tmpPath)) {
     mkdir($tmpPath, 0777, true);
 }
 if (!file_exists($tmpPathOld)) {
     mkdir($tmpPathOld, 0777, true);
+}
+if (!file_exists($sqlPath)) {
+    mkdir($sqlPath, 0777, true);
 }
 
 foreach ($requiresUpdates as $update) {
@@ -101,6 +105,27 @@ foreach ($requiresUpdates as $update) {
     } else {
         echo "No changes: " . $update . "<br>";
     }
+
+    $sqlFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/sql/update-{$update}.sql";
+    // Check if file exists on GitHub
+    if (file_get_contents($sqlFile)) {
+        $sqlData = file_get_contents($sqlFile);
+        $sqlPath = $sqlPath . "/update-{$update}.sql";
+        file_put_contents($sqlPath, $sqlData);
+        echo "SQL: " . $sqlPath . "<br>";
+
+        // Import the SQL file into the database
+        $sql = file_get_contents($sqlPath);
+        if ($conn->multi_query($sql)) {
+            do {
+                if ($result = $conn->store_result()) {
+                    $result->free();
+                }
+            } while ($conn->next_result());
+        } else {
+            echo "Error executing SQL: " . $conn->error;
+        }
+    }
 }
 
 $newVersion = trim($branch === "devel" ? $latestDevelVersion : $latestStableVersion);
@@ -108,8 +133,8 @@ $versionFile = __DIR__ . "/../../version";
 file_put_contents($versionFile, $newVersion);
 
 if (file_exists($tmpPathOld)) {
-    unlink($tmpPathOld);
+    shell_exec("rm -rf " . $tmpPathOld);
 }
 if (file_exists($tmpPath)) {
-    unlink($tmpPath);
+    shell_exec("rm -rf " . $tmpPath);
 }
