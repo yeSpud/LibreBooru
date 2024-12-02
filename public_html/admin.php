@@ -28,6 +28,37 @@ if ($action == "u") {
     $smarty->assign("latestDevelVersion", $latestDevelVersion);
     $smarty->assign("branch", $branch);
     $smarty->assign("latestVersion", $latestVersion);
+} elseif ($action == "r") {
+    $reportsType = "p";
+    if (isset($_GET["t"]) && !empty($_GET["t"]) && $_GET["t"] == "c") {
+        $reportsType = "c";
+    }
+    $smarty->assign("reportsType", $reportsType);
+
+    $status = "reported";
+    if (isset($_GET["s"]) && !empty($_GET["s"]) && $_GET["s"] == "a") {
+        $status = "approved";
+    } elseif (isset($_GET["s"]) && !empty($_GET["s"]) && $_GET["s"] == "r") {
+        $status = "rejected";
+    }
+
+    $reportsSql = "SELECT * FROM post_reports WHERE status = ? ORDER BY report_id DESC";
+    $reportsStmt = $conn->prepare($reportsSql);
+    $reportsStmt->bind_param("s", $status);
+    $reportsStmt->execute();
+    $reportsResult = $reportsStmt->get_result();
+    $reports = [];
+    while ($report = $reportsResult->fetch_assoc()) {
+        $userSql = "SELECT username FROM users WHERE user_id = ?";
+        $userStmt = $conn->prepare($userSql);
+        $userStmt->bind_param("i", $report["user_id"]);
+        $userStmt->execute();
+        $userResult = $userStmt->get_result();
+        $report["username"] = $userResult->fetch_assoc()["username"];
+        $reports[] = $report;
+    }
+
+    $smarty->assign("reports", $reports);
 }
 
 if (!empty($errors)) {

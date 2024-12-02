@@ -40,6 +40,12 @@ if (!$post) {
     exit();
 }
 
+if ($post["deleted"] == 1) {
+    echo json_encode(["error" => $lang["post_already_deleted"]]);
+    http_response_code(400);
+    exit();
+}
+
 // Check if reason contains "delfile", if yes set $deleteFile = true and remove delfile from the reason string
 $deleteFile = false;
 if (strpos($_POST["reason"], "delfile") !== false) {

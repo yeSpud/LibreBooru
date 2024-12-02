@@ -149,7 +149,17 @@
                         {/if}</p>
                     <p class="m-0 p-0"><b><a href="/uploads/{$type}/{$post.image_url}.{$post.file_extension}" target="_blank"
                                 id="originalImageLink">{$lang["original_image"]}</a></b></p>
-                    <p class="m-0 p-0"><a href="javascript:reportPost('{$id}')">{$lang["report_to_moderation"]}</a></p>
+                    {if in_array("report", $permissions)}
+                        {if $reportedStatus == "none"}
+                            <p class="m-0 p-0"><a href="javascript:reportPost('{$id}')">{$lang["report_to_moderation"]}</a></p>
+                        {elseif $reportedStatus == "reported"}
+                            <p class="m-0 p-0">{$lang["flagged_for_deletion"]}</p>
+                        {else}
+                            <p class="m-0 p-0">{$lang["report_was_denied"]}</p>
+                        {/if}
+                    {else}
+                        <p class="m-0 p-0">{$lang["no_permission_to_report"]}</p>
+                    {/if}
                     <p class="m-0 p-0"><a href="javascript:toggleFavourite('{$id}')"
                             id="favouriteText">{if $favourited}{$lang["remove_from_favourites"]}
                             {else}{$lang["add_to_favourites"]}
