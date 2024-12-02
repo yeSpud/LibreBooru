@@ -53,13 +53,8 @@ foreach ($updateOrder as $upOrder) {
         file_put_contents($sqlPath, $sqlData);
         echo "<span style='color:blue'>[INFO] SQL:</span> " . $sqlPath . "<br>";
 
-        // Import the SQL file into the database
         $sql = file_get_contents($sqlPath);
-
-        // Split the SQL code into individual statements
         $sqlStatements = explode(';', $sql);
-
-        // Iterate through each statement and execute it separately
         foreach ($sqlStatements as $statement) {
             // Trim whitespace and skip empty statements
             $statement = trim($statement);
@@ -71,10 +66,10 @@ foreach ($updateOrder as $upOrder) {
                 if ($conn->query($statement)) {
                     echo "<span style='color:green'>[DEBUG] Successfully executed:</span> $statement<br>";
                 } else {
-                    echo "<span style='color:red'>[DEBUG] Error executing:</span> $statement\nError: {$conn->error}<br>";
+                    echo "<span style='color:red'>[DEBUG] Error executing:</span> $statement<br><span style='color:red'>[DEBUG] Error:</span> {$conn->error}<br>";
                 }
             } catch (mysqli_sql_exception $e) {
-                echo "<span style='color:red'>[DEBUG] Exception on statement:</span> $statement\nError: " . $e->getMessage() . "<br>";
+                echo "<span style='color:red'>[DEBUG] Exception on statement:</span> $statement<br><span style='color:red'>[DEBUG] Error:</span> " . $e->getMessage() . "<br>";
             }
         }
     }
@@ -88,7 +83,7 @@ foreach ($updateOrder as $update) {
 }
 
 if (empty($requiresUpdates)) {
-    echo "<span style='color:blue'>[INFO] Info:</span>" . $lang["no_updates_available"];
+    echo "<span style='color:blue'>[INFO] Info:</span> " . $lang["no_updates_available"];
     http_response_code(400);
     exit();
 }
@@ -153,4 +148,7 @@ if (file_exists($tmpPathOld)) {
 }
 if (file_exists($tmpPath)) {
     shell_exec("rm -rf " . $tmpPath);
+}
+if (file_exists($sqlPath)) {
+    shell_exec("rm -rf " . $sqlPath);
 }
