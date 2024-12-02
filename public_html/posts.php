@@ -448,6 +448,16 @@ if ($action == "s" || $action == "i") {
     }
     $smarty->assign("voted", $voted);*/
 
+    $reportedStatus = "none";
+    $reportedSql = "SELECT report_id, status FROM post_reports LIMIT 1";
+    $reportedStmt = $conn->prepare($reportedSql);
+    $reportedStmt->execute();
+    $reportedResult = $reportedStmt->get_result();
+    if ($reportedResult->num_rows > 0) {
+        $reportedStatus = $reportedResult->fetch_assoc()["status"];
+    }
+    $smarty->assign("reportedStatus", $reportedStatus);
+
     $favourited = false;
     if (isset($user["user_id"])) {
         $favouriteSql = "SELECT id FROM favourites WHERE post_id = ? AND user_id = ?";

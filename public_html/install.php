@@ -1,6 +1,6 @@
 <?php
 
-$version = "0.1.0-devel";
+$version = "0.1.1-devel";
 $config["debug"] = true;
 $config["externalapi"] = false;
 $config["language"] = "en";

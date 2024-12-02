@@ -12,3 +12,7 @@ someone who isn't at least a moderator, idk and I'm lazy OwO
 
 | Prefixes on already existing Tags
 Will result in an error. But oh well, this is one thing I can't fix.
+
+| Reports disappearing
+Not really happy how reports disappear after approving or rejecting,
+but I have no idea how else to solve it.

@@ -64,6 +64,10 @@
             border: 3px solid {$colors["awaiting"]};
         }
 
+        .post_deleted {
+            border: 3px solid red;
+        }
+
         .post_video {
             border: 3px solid {$colors["video"]};
         }

@@ -9,7 +9,7 @@
                             title="{$item.tags} rating:{$item.rating} score:{$item.score}">
                             <img src="/uploads/thumbs/{if $item.deleted && (in_array("moderate", $permissions) && in_array("admin", $permissions))}.{/if}{$item.image_url}.{if isset($item.is_video)}jpg{else}{$item.file_extension}{/if}"
                                 alt="{$item.description} - {$item.tags} rating:{$item.rating} score:{$item.score}"
-                                class="{if !$item.is_approved}post_awaiting{else}{if $item.file_extension == "gif"}post_gif{/if}{if isset($item.is_video)}post_video{/if}{/if}">
+                                class="{if !$item.is_approved}post_awaiting{elseif $item.deleted}post_deleted{else}{if $item.file_extension == "gif"}post_gif{/if}{if isset($item.is_video)}post_video{/if}{/if}">
                         </a>
                     {/if}
                 {/foreach}
