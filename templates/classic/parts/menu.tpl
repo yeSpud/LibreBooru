@@ -17,6 +17,9 @@
         <a href="/forum.php?a=i">{$lang["forum"]}</a>
         <a href="/extra.php?a=s">{$lang["stats"]}</a>
         <a href="/extra.php?a=h">{$lang["help"]}</a>
+        {if in_array("moderate", $permissions) || in_array("admin", $permissions)}
+            <a href="/admin.php?a=i" {if $activePage == "admin"}class="active" {/if}>{$lang["admin_panel"]}</a>
+        {/if}
     </div>
     <div class="sub_menu">
         <div class="items">
@@ -56,6 +59,11 @@
             {elseif $activePage == "tags"}
                 <a
                     href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "a"}&p={$smarty["get"]["p"] ?? 1}">{$lang["list"]}</a>
+            {elseif $activePage == "admin"}
+                <a href="/admin.php?a=i">{$lang["home"]}</a>
+                <a href="/admin.php?a=u">{$lang["update"]}</a>
+                <a href="/posts.php?a=s&t=status:awaiting">{$lang["approval_queue"]}</a>
+                <a href="/admin.php?a=r">{$lang["reports"]}</a>
             {/if}
         </div>
     </div>

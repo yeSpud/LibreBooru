@@ -3,11 +3,11 @@
 require __DIR__ . "/../../bootstrapper.php";
 header("Content-Type: application/json");
 
-/*if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode(["error" => $lang["method_not_allowed"]]);
     http_response_code(405);
     exit();
-}*/
+}
 
 if (!in_array("admin", $permissions)) {
     echo json_encode(["error" => $lang["insufficient_permissions"]]);
@@ -16,7 +16,7 @@ if (!in_array("admin", $permissions)) {
 }
 
 $currentVersion = $version;
-$branche = str_contains($currentVersion, "devel") ? "devel" : "master";
+$branch = str_contains($currentVersion, "devel") ? "devel" : "master";
 $latestStableVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/latest_stable.txt";
 $latestDevelVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/latest_devel.txt";
 $stableVersionsFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/versions_stable.json";
@@ -31,7 +31,7 @@ $versions["devel"] = json_decode(file_get_contents($develVersionsFile), true);
 // Check where the current version is
 // ["0.1.0-devel", "0.1.1-devel"]
 $updateOrder = [];
-$versions = $versions[$branche];
+$versions = $versions[$branch];
 foreach ($versions as $vkey => $ver) {
     if ($ver === $currentVersion) {
         $updateOrder = array_slice($versions, $vkey + 1);
@@ -46,6 +46,12 @@ foreach ($updateOrder as $update) {
     $requiresUpdates = array_merge($requiresUpdates, $updateData);
 }
 
+if (empty($requiresUpdates)) {
+    echo $lang["no_updates_available"];
+    http_response_code(400);
+    exit();
+}
+
 $tmpPath = __DIR__ . "/../../__init/.tmp/update";
 $tmpPathOld = __DIR__ . "/../../__init/.tmp/update_old";
 if (!file_exists($tmpPath)) {
@@ -57,7 +63,7 @@ if (!file_exists($tmpPathOld)) {
 
 foreach ($requiresUpdates as $update) {
     $currentUpdateFile = __DIR__ . "/../../" . $update;
-    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru/refs/heads/" . $branche . "/" . $update;
+    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru/refs/heads/" . $branch . "/" . $update;
     if (file_exists($currentUpdateFile)) {
         $currentUpdateData = file_get_contents($currentUpdateFile);
         $currentUpdatePath = $tmpPathOld . "/" . $update;
@@ -90,13 +96,20 @@ foreach ($requiresUpdates as $update) {
             mkdir($updateDir, 0777, true);
         }
 
-        echo "Updating: " . $update . "\n";
+        echo "Updating: " . $update . "<br>";
         file_put_contents($updatePath, $updateData);
     } else {
-        echo "No changes: " . $update . "\n";
+        echo "No changes: " . $update . "<br>";
     }
 }
 
-$newVersion = trim($branche === "devel" ? $latestDevelVersion : $latestStableVersion);
+$newVersion = trim($branch === "devel" ? $latestDevelVersion : $latestStableVersion);
 $versionFile = __DIR__ . "/../../version";
 file_put_contents($versionFile, $newVersion);
+
+if (file_exists($tmpPathOld)) {
+    unlink($tmpPathOld);
+}
+if (file_exists($tmpPath)) {
+    unlink($tmpPath);
+}
