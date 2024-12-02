@@ -33,8 +33,15 @@ if ($action == "s" || $action == "i") {
     if (strpos($searchTerm, "rating:") !== false) {
         $rating = explode(" ", explode("rating:", $searchTerm)[1])[0];
         $rating = validateRating(strtolower(trim($rating)));
-        // Not necessary anymore since we filter this out in getTags
-        //$searchTerm = str_replace("rating:$rating", "", $searchTerm);
+    }
+
+    $status = "awaiting|approved";
+    if (in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+        $status = "awaiting|approved|deleted";
+    }
+    if (strpos($searchTerm, "status:") !== false) {
+        $status = explode(" ", explode("status:", $searchTerm)[1])[0];
+        $status = determineStatus(strtolower(trim($status)), $permissions);
     }
 
     $searchUser = 0;
@@ -56,13 +63,13 @@ if ($action == "s" || $action == "i") {
     if ($count > $config["search_max_tags"]) {
         $errors[] = "You can only search for up to " . $config["search_max_tags"] . " tags at a time.";
     }
-    if (empty($tags) && ($searchTerm != '' && $searchTerm != '*' && !str_contains($searchTerm, 'rating:') && !str_contains($searchTerm, 'user:'))) {
+    if (empty($tags) && ($searchTerm != '' && $searchTerm != '*' && !str_contains($searchTerm, 'rating:') && !str_contains($searchTerm, 'user:') && !str_contains($searchTerm, "status:"))) {
         $posts = [];
         $allTags = [];
         $totalPosts = 0;
         $totalPages = 0;
     } else {
-        $_posts = getPosts($conn, $tags, $perpage, $offset, $rating, $searchUser);
+        $_posts = getPosts($conn, $tags, $perpage, $offset, $rating, $status, $searchUser);
         $posts = $_posts[0];
         $allTags = $_posts[2];
 
@@ -359,6 +366,13 @@ if ($action == "s" || $action == "i") {
         $post["tags"][] = $tagRow["tag_name"];
     }
 
+    // Now sort allTags[category] by name asc
+    foreach ($allTags as $category => $tags) {
+        usort($allTags[$category], function ($a, $b) {
+            return $a["name"] <=> $b["name"];
+        });
+    }
+
     $tagStmt->close();
 
     $post["tags"] = implode(" ", $post["tags"]);
@@ -509,33 +523,37 @@ if ($action == "s" || $action == "i") {
 
         // Insert new tags and log history
         foreach ($tagsToAdd as $tag) {
-            $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
-            $stmt->bind_param("s", $tag);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $category = determineCategory($tag);
-            if ($result->num_rows == 0) {
-                // Insert new tag if it doesn't exist
-                $stmt = $conn->prepare("INSERT INTO tags (tag_name, category) VALUES (?, ?)");
-                $stmt->bind_param("ss", $tag, $category);
+            $tag = trim(strtolower($tag));
+            if (!empty($tag)) {
+                $category = determineCategory($tag);
+                $tag = preg_replace("/(copyright|artist|character|general|meta|other):/", "", $tag);
+                $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
+                $stmt->bind_param("s", $tag);
                 $stmt->execute();
-                $tagId = $stmt->insert_id;
-            } else {
-                $tagId = $result->fetch_assoc()["tag_id"];
+                $result = $stmt->get_result();
+                if ($result->num_rows == 0) {
+                    // Insert new tag if it doesn't exist
+                    $stmt = $conn->prepare("INSERT INTO tags (tag_name, category) VALUES (?, ?)");
+                    $stmt->bind_param("ss", $tag, $category);
+                    $stmt->execute();
+                    $tagId = $stmt->insert_id;
+                } else {
+                    $tagId = $result->fetch_assoc()["tag_id"];
+                }
+                $stmt->close();
+
+                // Associate tag with post
+                $stmt = $conn->prepare("INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)");
+                $stmt->bind_param("ii", $id, $tagId);
+                $stmt->execute();
+                $stmt->close();
+
+                // Log tag addition
+                $stmt = $conn->prepare("INSERT INTO tag_history (post_id, tag_id, action, user_id, commit_id) VALUES (?, ?, 'add', ?, ?)");
+                $stmt->bind_param("iiis", $id, $tagId, $user["user_id"], $commitId);
+                $stmt->execute();
+                $stmt->close();
             }
-            $stmt->close();
-
-            // Associate tag with post
-            $stmt = $conn->prepare("INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)");
-            $stmt->bind_param("ii", $id, $tagId);
-            $stmt->execute();
-            $stmt->close();
-
-            // Log tag addition
-            $stmt = $conn->prepare("INSERT INTO tag_history (post_id, tag_id, action, user_id, commit_id) VALUES (?, ?, 'add', ?, ?)");
-            $stmt->bind_param("iiis", $id, $tagId, $user["user_id"], $commitId);
-            $stmt->execute();
-            $stmt->close();
         }
 
         // Remove old tags and log history

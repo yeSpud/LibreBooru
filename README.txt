@@ -15,7 +15,7 @@ X. Credits
 
 | LIVE DEMO
 
-See OpenBooru in action at https://openbooru.net
+See OpenBooru in action at https://openbooru.5ynchro.net
 It's running the latest version with close to no changes to the source.
 Donate to keep it alive :D
 

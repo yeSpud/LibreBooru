@@ -9,3 +9,6 @@ have different amount of big searches. (English wow)
 | LOCKED
 Check if a Wiki tag is locked, that it really is not editable by
 someone who isn't at least a moderator, idk and I'm lazy OwO
+
+| Prefixes on already existing Tags
+Will result in an error. But oh well, this is one thing I can't fix.

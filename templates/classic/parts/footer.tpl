@@ -3,14 +3,14 @@
         <div class="sub_menu" style="display:flex">
             <p class="m-0 p-0" style="color:white;">
                 {replace s=$lang["footer_phrase"] n=["[OpenBooru]", "[version]", "[Aether]", "[other_contributors]"]
-                r=['<a href="https://github.com/5ynchrogazer/OpenBooru" target="_blank" class="underline">OpenBooru</a>',
-                    "v{$version}",
+                                r=['<a href="https://github.com/5ynchrogazer/OpenBooru" target="_blank" class="underline">OpenBooru</a>',
+                                    "v{$version}",
                 '<a href="https://github.com/5ynchrogazer" target="_blank" class="underline">Aether</a>',
                 '<a href="https://github.com/5ynchrogazer/OpenBooru/graphs/contributors" target="_blank"
                 class="underline">'|cat:$lang["other_contributors"]|cat:'</a>']}
             </p>
             <span style="margin-left:auto;">
-                <a href="javascript:void" id="localeSelector">Language</a>
+                <a href="javascript:void" id="localeSelector">{$lang["language"]}</a>
             </span>
         </div>
     </div>
@@ -29,10 +29,10 @@
         } else if (event.key === "f" && !event.ctrlKey && !isInputOrTextarea(document.activeElement)) {
             toggleFullscreen();
         } else if ((event.key === "n" || (event.key === "ArrowLeft" && !event.altKey)) && !isInputOrTextarea(document
-                .activeElement)) {
+                .activeElement) && !isFullscreen() && !isVideoFocussed()) {
             clickNext();
         } else if ((event.key === "p" || (event.key === "ArrowRight" && !event.altKey)) && !isInputOrTextarea(document
-                .activeElement)) {
+                .activeElement) && !isFullscreen() && !isVideoFocussed()) {
             clickPrevious();
         } else if (event.key === "t" && !isInputOrTextarea(document.activeElement)) {
             toggleOriginal();
@@ -53,6 +53,15 @@
         } else if (event.key === "o" && !isInputOrTextarea(document.activeElement)) {
             openOriginalImage();
         }
+    }
+
+    function isFullscreen() {
+        return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement ||
+            document.msFullscreenElement;
+    }
+
+    function isVideoFocussed() {
+        return document.activeElement === videoElement;
     }
 
     function isInputOrTextarea(element) {

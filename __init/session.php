@@ -15,9 +15,13 @@ if (isset($_COOKIE["token"]) && !empty($_COOKIE["token"])) {
         $_ipAddress = $conn->real_escape_string($_SERVER["REMOTE_ADDR"]);
         $ipAddress = hash("sha256", $_ipAddress);
 
-        $sql = "SELECT * FROM sessions WHERE session_id = ? AND user_agent = ? AND ip_address = ? LIMIT 1";
+        //$sql = "SELECT * FROM sessions WHERE session_id = ? AND user_agent = ? AND ip_address = ? LIMIT 1";
+        //$sql = "SELECT * FROM sessions WHERE session_id = ? AND ip_address = ? LIMIT 1";
+        $sql = "SELECT * FROM sessions WHERE session_id = ? LIMIT 1";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $token, $userAgent, $ipAddress);
+        //$stmt->bind_param("sss", $token, $userAgent, $ipAddress);
+        //$stmt->bind_param("ss", $token, $ipAddress);
+        $stmt->bind_param("s", $token);
         $stmt->execute();
         $result = $stmt->get_result();
         $session = $result->fetch_assoc();
@@ -28,31 +32,31 @@ if (isset($_COOKIE["token"]) && !empty($_COOKIE["token"])) {
             exit;
         }
 
-        if ($session["ip_address"] == hash("sha256", $_SERVER["REMOTE_ADDR"])) {
-            if ($result->num_rows > 0) {
-                //print_r($session);
-                $sql = "SELECT * FROM users WHERE user_id = ? LIMIT 1";
+        //if ($session["ip_address"] == hash("sha256", $_SERVER["REMOTE_ADDR"])) {
+        if ($result->num_rows > 0) {
+            //print_r($session);
+            $sql = "SELECT * FROM users WHERE user_id = ? LIMIT 1";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $session["user_id"]);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+
+            if ($user["is_banned"] == 1) {
+                $sql = "DELETE FROM sessions WHERE session_id = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $session["user_id"]);
+                $stmt->bind_param("s", $token);
                 $stmt->execute();
-                $result = $stmt->get_result();
-                $user = $result->fetch_assoc();
 
-                if ($user["is_banned"] == 1) {
-                    $sql = "DELETE FROM sessions WHERE session_id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("s", $token);
-                    $stmt->execute();
-
-                    setcookie("token", "", time() - 3600, "/", "", false, true);
-                    header("Location: /extra.php?a=b");
-                    exit;
-                }
-
-                $logged = true;
-                $levelId = $user["user_level"];
+                setcookie("token", "", time() - 3600, "/", "", false, true);
+                header("Location: /extra.php?a=b");
+                exit;
             }
+
+            $logged = true;
+            $levelId = $user["user_level"];
         }
+        //}
     }
 }
 

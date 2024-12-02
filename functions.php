@@ -265,6 +265,55 @@ function determineCategory($tag)
     }
 }
 
+function determineStatus($status, $permissions)
+{
+    // If $status starts with...
+    // "awaiting" return "awaiting"
+    // "approved" return "approved"
+    // "deleted" return "deleted"
+    // "awaiting|approved" return "awaiting|approved"
+    // "awaiting|deleted" return "awaiting|deleted"
+    // "approved|deleted" return "approved|deleted"
+    // "awaiting|approved|deleted" return "awaiting|approved|deleted"
+    // Otherwise, return "awaiting|approved"
+    // If contains "deleted", check if "moderate" or "admin" is in array $permissions, if not remove "deleted"
+
+    $moderate  = false;
+    if (in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+        $moderate = true;
+    }
+
+    if (str_contains($status, "awaiting") && str_contains($status, "approved") && str_contains($status, "deleted")) {
+        if ($moderate) {
+            return "awaiting|approved|deleted";
+        } else {
+            return "awaiting|approved";
+        }
+    } elseif (str_contains($status, "awaiting") && str_contains($status, "approved")) {
+        return "awaiting|approved";
+    } elseif (str_contains($status, "awaiting") && str_contains($status, "deleted")) {
+        if ($moderate) {
+            return "awaiting|deleted";
+        } else {
+            return "awaiting";
+        }
+    } elseif (str_contains($status, "approved") && str_contains($status, "deleted")) {
+        if ($moderate) {
+            return "approved|deleted";
+        } else {
+            return "approved";
+        }
+    } elseif (str_starts_with($status, "awaiting")) {
+        return "awaiting";
+    } elseif (str_starts_with($status, "approved")) {
+        return "approved";
+    } elseif (str_starts_with($status, "deleted") && $moderate) {
+        return "deleted";
+    } else {
+        return "awaiting|approved";
+    }
+}
+
 function writeStep($step)
 {
     $stepFile = __DIR__ . "/__init/.tmp/step.txt";
@@ -304,6 +353,11 @@ function writeConfig($file, $post)
     fclose($env);
 }
 
+function nanotime()
+{
+    return (int)(microtime(true) * 1000000);
+}
+
 
 
 
@@ -313,7 +367,7 @@ function getTags($conn, $tags, $maxTags)
     $count = 0;
     $_tags = [];
     foreach ($tags as $tag) {
-        if (!str_contains($tag, "rating:") && !str_contains($tag, "user:")) {
+        if (!str_contains($tag, "rating:") && !str_contains($tag, "user:") && !str_contains($tag, "status:")) {
             $count++;
             if ($count <= $maxTags) {
                 $tag = trim($tag);
@@ -371,7 +425,7 @@ function getTags($conn, $tags, $maxTags)
     return [$_tags, $count];
 }
 
-function getPosts($conn, $tags, $limit, $offset, $rating = "all", $user = 0)
+function getPosts($conn, $tags, $limit, $offset, $rating = "all", $status = "awaiting|approved", $user = 0)
 {
     $allPosts = false;
     $allTags = [];
@@ -397,13 +451,29 @@ function getPosts($conn, $tags, $limit, $offset, $rating = "all", $user = 0)
         $ratingCondition = "AND (posts.rating = 'safe' OR posts.rating = 'explicit')";
     }
 
+    if ($status == "awaiting") {
+        $ratingCondition .= " AND posts.is_approved = 0 AND posts.deleted = 0";
+    } elseif ($status == "approved") {
+        $ratingCondition .= " AND posts.is_approved = 1 AND posts.deleted = 0";
+    } elseif ($status == "deleted") {
+        $ratingCondition .= " AND posts.deleted = 1";
+    } elseif ($status == "awaiting|deleted") {
+        $ratingCondition .= " AND (posts.is_approved = 0 OR posts.deleted = 1)";
+    } elseif ($status == "approved|deleted") {
+        $ratingCondition .= " AND (posts.is_approved = 1 OR posts.deleted = 1)";
+    } elseif ($status == "awaiting|approved|deleted") {
+        $ratingCondition .= " AND (posts.is_approved = 0 OR posts.is_approved = 1 OR posts.deleted = 1)";
+    } else {
+        $ratingCondition .= " AND (posts.is_approved = 0 OR posts.is_approved = 1) AND posts.deleted = 0";
+    }
+
     if (!empty($user)) {
         $user = sanitize($user);
         $ratingCondition .= " AND posts.user_id = (SELECT user_id FROM users WHERE username = '$user')";
     }
 
     if ($allPosts) {
-        $query = "SELECT SQL_CALC_FOUND_ROWS posts.* FROM posts WHERE posts.deleted = 0 {$ratingCondition} ORDER BY posts.post_id DESC LIMIT ? OFFSET ?";
+        $query = "SELECT SQL_CALC_FOUND_ROWS posts.* FROM posts WHERE 1=1 {$ratingCondition} ORDER BY posts.post_id DESC LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("ii", $limit, $offset);
     } else {
