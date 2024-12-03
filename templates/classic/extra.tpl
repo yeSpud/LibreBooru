@@ -66,7 +66,7 @@
                         <td><a href="/posts.php?a=s&t={$tag["tag_name"]}" class="tag_{$tag["category"]}">{$tag["tag_name"]}</a></td>
                         <td>{$tag["category"]|capitalize}
                             {if in_array("tag", $permissions) && (!$tag["locked"] || ($tag["locked"] && (in_array("moderate", $permissions) || in_array("admin", $permissions))))}(<a
-                                href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "a"}&p={$page}&e={$tag["tag_name"]}">{$lang["edit"]|lower}</a>){/if}
+                                href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "d"}&p={$page}&e={$tag["tag_name"]}">{$lang["edit"]|lower}</a>){/if}
                         </td>
                     </tr>
                 {/foreach}
@@ -74,17 +74,17 @@
 
             <div class="pagination">
                 {if $page > 1}
-                    <a href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "a"}&p=1">&laquo;
+                    <a href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "d"}&p=1">&laquo;
                         {$lang["first"]}</a>
                     <a
-                        href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "a"}&p={$page - 1}">{$lang["previous"]}</a>
+                        href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "d"}&p={$page - 1}">{$lang["previous"]}</a>
                 {/if}
 
                 {if $page < $totalPages}
                     <a
-                        href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "a"}&p={$page + 1}">{$lang["next"]}</a>
+                        href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "d"}&p={$page + 1}">{$lang["next"]}</a>
                     <a
-                        href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "a"}&p={$totalPages}">{$lang["last"]}
+                        href="/extra.php?a=t&t={$searchTerm}&s={$smarty["get"]["s"] ?? "u"}&o={$smarty["get"]["o"] ?? "d"}&p={$totalPages}">{$lang["last"]}
                         &raquo;</a>
                 {/if}
             </div>

@@ -2,13 +2,16 @@
 
 OpenBooru is an open-source Booru. It aims to enable users to host their own image-library with an intuitive and extensive search, tagging-system and more.
 
+Come hang out on [Discord](https://discord.5ynchro.net)! I'll be there if you have any questions, requests, and I'll regularly post updates on the current devel build!
+
 ## Table of Contents
 
 1. [Live Demo](#live-demo)
 2. [Donations](#donations)
 3. [Installation](#installation)
-4. [Credits](#credits)
-5. [Fun Facts](#fun-facts)
+4. [Updating](#updating)
+5. [Credits](#credits)
+6. [Fun Facts](#fun-facts)
 
 ## Live Demo
 
@@ -79,6 +82,12 @@ location ~* \.(jpg|jpeg|png|gif|bmp|tiff)$ {
     add_header X-Robots-Tag "noindex, nofollow";
 }
 ```
+
+## Updating
+
+You can most always use the inbuild Update System in the Admin Area. However, **ALWAYS** make a backup of your data and database before doing so! You never know what may go wrong.
+
+Also, please make sure to check out [OpenBooru-Extras README.md](https://github.com/5ynchrogazer/OpenBooru-Extras/blob/master/README.md) for further instructions and how-to's when upgrading.
 
 ## Credits
 

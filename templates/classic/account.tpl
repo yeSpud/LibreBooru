@@ -32,6 +32,8 @@
         {if $logged}
             {include file="pages/account_options.tpl"}
         {/if}
+    {elseif $action == "p"}
+        {include file="pages/account_profile.tpl"}
     {/if}
 </div>
 

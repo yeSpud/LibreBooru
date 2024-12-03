@@ -10,6 +10,8 @@ if (isset($_GET["a"]) && in_array($_GET["a"], $actions)) {
     $action = $_GET["a"];
 }
 
+$pageTitle = "Your Account on " . $config["sitename"];
+
 $errors = [];
 if ($action == "l") {
     if (isset($_POST["login"])) {
@@ -227,6 +229,124 @@ if ($action == "l") {
             }
         }
     }
+} elseif ($action == "p") {
+    if (!isset($_GET["id"]) || empty($_GET["id"]) || !is_numeric($_GET["id"])) {
+        header("Location: /account.php?a=i");
+        exit;
+    }
+
+    $_id = $_GET["id"];
+    $tab = "p";
+
+    if (isset($_GET["t"]) && !empty($_GET["t"]) && $_GET["t"] == "r") {
+        $tab = "r";
+    }
+
+    $profileSql = "SELECT * FROM users WHERE user_id = ? LIMIT 1";
+    $profileStmt = $conn->prepare($profileSql);
+    $profileStmt->bind_param("i", $_id);
+    $profileStmt->execute();
+    $profileResult = $profileStmt->get_result();
+    $profile = $profileResult->fetch_assoc();
+
+    if (!$profile) {
+        header("Location: /account.php?a=i");
+        exit;
+    }
+
+    if ($tab == "p") {
+        $levelSql = "SELECT level_name FROM user_levels WHERE level_id = ? LIMIT 1";
+        $levelStmt = $conn->prepare($levelSql);
+        $levelStmt->bind_param("i", $profile["user_level"]);
+        $levelStmt->execute();
+        $levelResult = $levelStmt->get_result();
+        $profile["level_name"] = $levelResult->fetch_assoc()["level_name"];
+
+        $postCountSql = "SELECT COUNT(*) AS post_count FROM posts WHERE user_id = ? AND deleted = 0";
+        $postCountStmt = $conn->prepare($postCountSql);
+        $postCountStmt->bind_param("i", $_id);
+        $postCountStmt->execute();
+        $postCountResult = $postCountStmt->get_result();
+        $profile["post_count"] = $postCountResult->fetch_assoc()["post_count"];
+
+        $deletedPostCountSql = "SELECT COUNT(*) AS deleted_post_count FROM posts WHERE user_id = ? AND deleted = 1";
+        $deletedPostCountStmt = $conn->prepare($deletedPostCountSql);
+        $deletedPostCountStmt->bind_param("i", $_id);
+        $deletedPostCountStmt->execute();
+        $deletedPostCountResult = $deletedPostCountStmt->get_result();
+        $profile["deleted_post_count"] = $deletedPostCountResult->fetch_assoc()["deleted_post_count"];
+
+        $favouritesCountSql = "SELECT COUNT(*) AS favourites_count FROM favourites WHERE user_id = ?";
+        $favouritesCountStmt = $conn->prepare($favouritesCountSql);
+        $favouritesCountStmt->bind_param("i", $_id);
+        $favouritesCountStmt->execute();
+        $favouritesCountResult = $favouritesCountStmt->get_result();
+        $profile["favourites_count"] = $favouritesCountResult->fetch_assoc()["favourites_count"];
+
+        $postEditCountSql = "SELECT COUNT(distinct commit_id) AS post_edit_count FROM tag_history WHERE user_id = ?";
+        $postEditCountStmt = $conn->prepare($postEditCountSql);
+        $postEditCountStmt->bind_param("i", $_id);
+        $postEditCountStmt->execute();
+        $postEditCountResult = $postEditCountStmt->get_result();
+        $profile["post_edit_count"] = $postEditCountResult->fetch_assoc()["post_edit_count"];
+
+        $wikiEditCountSql = "SELECT COUNT(*) AS wiki_edit_count FROM wiki_history WHERE user_id = ?";
+        $wikiEditCountStmt = $conn->prepare($wikiEditCountSql);
+        $wikiEditCountStmt->bind_param("i", $_id);
+        $wikiEditCountStmt->execute();
+        $wikiEditCountResult = $wikiEditCountStmt->get_result();
+        $profile["wiki_edit_count"] = $wikiEditCountResult->fetch_assoc()["wiki_edit_count"];
+
+        $favouriteIdsSql = "SELECT post_id FROM favourites WHERE user_id = ? ORDER BY id DESC LIMIT 6";
+        $favouriteIdsStmt = $conn->prepare($favouriteIdsSql);
+        $favouriteIdsStmt->bind_param("i", $_id);
+        $favouriteIdsStmt->execute();
+        $favouriteIdsResult = $favouriteIdsStmt->get_result();
+        $posts = [];
+        while ($favouriteId = $favouriteIdsResult->fetch_assoc()) {
+            $postSql = "SELECT * FROM posts WHERE post_id = ? LIMIT 1";
+            $postStmt = $conn->prepare($postSql);
+            $postStmt->bind_param("i", $favouriteId["post_id"]);
+            $postStmt->execute();
+            $postResult = $postStmt->get_result();
+            $post = $postResult->fetch_assoc();
+
+            $posts[] = $post;
+        }
+
+        $uploads = getPosts($conn, "", 6, 0, "all", determineStatus(strtolower(trim("awaiting|approved|deleted")), $permissions), $profile["username"])[0];
+        $smarty->assign("favourites", $posts);
+        $smarty->assign("uploads", $uploads);
+        $pageTitle = $profile["username"] . "'s Account on " . $config["sitename"];
+    } else {
+        $canJudge = false;
+        if (in_array("judge", $permissions) || in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+            $canJudge = true;
+        }
+
+        if ($_GET["id"] == $user["user_id"]) {
+            $canJudge = false;
+        }
+
+        if ($canJudge) {
+            $judgeSql = "SELECT * FROM reputation WHERE user_id = ? AND giver_id = ? LIMIT 1";
+            $judgeStmt = $conn->prepare($judgeSql);
+            $judgeStmt->bind_param("ii", $_id, $user["user_id"]);
+            $judgeStmt->execute();
+            $judgeResult = $judgeStmt->get_result();
+            $judge = $judgeResult->fetch_assoc();
+
+            if ($judge) {
+                $canJudge = false;
+            }
+        }
+
+        $smarty->assign("canJudge", $canJudge);
+        $pageTitle = $profile["username"] . "'s Reputation on " . $config["sitename"];
+    }
+
+    $smarty->assign("tab", $tab);
+    $smarty->assign("profile", $profile);
 }
 
 if (!empty($errors)) {
@@ -238,5 +358,5 @@ $activePage = "account";
 $smarty->assign("errors", $errors);
 $smarty->assign("action", $action);
 $smarty->assign("activePage", $activePage);
-$smarty->assign("pagetitle", "Your Account on " . $config["sitename"]);
+$smarty->assign("pagetitle", $pageTitle);
 $smarty->display("account.tpl");

@@ -32,10 +32,13 @@
                 {$lang["posts"]} -
                 <a href="/admin.php?a=r&t=c">{$lang["comments"]}</a>
             </p>
-            <p>
-                <a href="/admin.php?a=r&t=p">{$lang["reported"]}</a> -
-                <a href="/admin.php?a=r&t=p&s=a">{$lang["approved"]}</a> -
-                <a href="/admin.php?a=r&t=p&s=r">{$lang["rejected"]}</a>
+            <hr>
+            <p class="m-0 p-0">
+                {if $status == "all"}{$lang["all"]}{else}<a href="/admin.php?a=r&t=p&s=all">{$lang["all"]}</a>{/if} -
+                {if $status == "reported"}{$lang["reported"]}{else}<a href="/admin.php?a=r&t=p">{$lang["reported"]}</a>{/if} -
+                {if $status == "approved"}{$lang["approved"]}{else}<a href="/admin.php?a=r&t=p&s=a">{$lang["approved"]}</a>{/if}
+                -
+                {if $status == "rejected"}{$lang["rejected"]}{else}<a href="/admin.php?a=r&t=p&s=r">{$lang["rejected"]}</a>{/if}
             </p>
         {else}
             <p class="mb-0 p-0">
@@ -49,7 +52,7 @@
                 <tr>
                     <th>{$lang["user"]}</th>
                     <th style="width: 1%;">{$lang["post"]}</th>
-                    <th style="width: 1%;">{$lang["reason"]}</th>
+                    <th style="width: 60%;">{$lang["reason"]}</th>
                     <th>{$lang["action"]}</th>
                     <th>{$lang["status"]}</th>
                     <th style="text-align: right; width: 15%">{$lang["timestamp"]}</th>
@@ -76,6 +79,24 @@
         {else}
             Comments
         {/if}
+
+        <div class="pagination">
+            {if $page > 1}
+                <a
+                    href="/admin.php?a=r&t={if isset($smarty["get"]["t"])}{$smarty["get"]["t"]}{else}p{/if}&s={if isset($smarty["get"]["s"])}{$smarty["get"]["s"]}{/if}&p=1">&laquo;
+                    {$lang["first"]}</a>
+                <a
+                    href="/admin.php?a=r&t={if isset($smarty["get"]["t"])}{$smarty["get"]["t"]}{else}p{/if}&s={if isset($smarty["get"]["s"])}{$smarty["get"]["s"]}{/if}&p={$page - 1}">{$lang["previous"]}</a>
+            {/if}
+
+            {if $page < $totalPages}
+                <a
+                    href="/admin.php?a=r&t={if isset($smarty["get"]["t"])}{$smarty["get"]["t"]}{else}p{/if}&s={if isset($smarty["get"]["s"])}{$smarty["get"]["s"]}{/if}&p={$page + 1}">{$lang["next"]}</a>
+                <a
+                    href="/admin.php?a=r&t={if isset($smarty["get"]["t"])}{$smarty["get"]["t"]}{else}p{/if}&s={if isset($smarty["get"]["s"])}{$smarty["get"]["s"]}{/if}&p={$totalPages}">{$lang["last"]}
+                    &raquo;</a>
+            {/if}
+        </div>
     {/if}
 </div>
 

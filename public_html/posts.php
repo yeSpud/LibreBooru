@@ -449,8 +449,9 @@ if ($action == "s" || $action == "i") {
     $smarty->assign("voted", $voted);*/
 
     $reportedStatus = "none";
-    $reportedSql = "SELECT report_id, status FROM post_reports LIMIT 1";
+    $reportedSql = "SELECT report_id, status FROM post_reports WHERE post_id = ? LIMIT 1";
     $reportedStmt = $conn->prepare($reportedSql);
+    $reportedStmt->bind_param("i", $id);
     $reportedStmt->execute();
     $reportedResult = $reportedStmt->get_result();
     if ($reportedResult->num_rows > 0) {
