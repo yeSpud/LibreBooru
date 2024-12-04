@@ -343,8 +343,8 @@ if ($action == "l") {
 
         if ($canJudge) {
             if (isset($_POST["judge"])) {
-                $given = isset($_POST["r"]) ? ($_POST["r"] == 1 ? "+" : "-") : $errors[] = "Please select a reputation to give.";
-                $comment = isset($_POST["comment"]) ? (strlen($_POST["comment"]) < 5 ? $errors[] = "Comment must be at least 5 characters." : $_POST["comment"]) : $errors[] = "Please enter a comment.";
+                $given = isset($_POST["r"]) ? ($_POST["r"] == 1 ? "+" : "-") : $errors[] = $lang["please_select_a_reputation_to_give"];
+                $comment = isset($_POST["comment"]) ? (strlen($_POST["comment"]) < 5 ? $errors[] = $lang["comment_must_be_at_least_5_characters"] : $_POST["comment"]) : $errors[] = $lang["please_enter_a_comment"];
 
                 if (empty($errors)) {
                     $sql = "INSERT INTO reputation (user_id, giver_id, given, comment) VALUES (?, ?, ?, ?)";

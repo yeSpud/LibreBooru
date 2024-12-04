@@ -270,9 +270,16 @@ if ($action == "s" || $action == "i") {
                                 foreach ($tags as $tag) {
                                     // Check if tag starts with copyright:, artist:, character:, general:, meta: or other:, remove it and add new to $_tag
                                     $tag = strtolower($tag);
-                                    $_tag = preg_replace("/(copyright|artist|character|general|meta|other):/", "", $tag);
-                                    if (preg_match("/(copyright|artist|character|general|meta|other):/", $tag)) {
+                                    $_tag = preg_replace("/(copyright|copy|artist|art|character|char|general|meta|other):/", "", $tag);
+                                    if (preg_match("/(copyright|copy|artist|art|character|char|general|meta|other):/", $tag)) {
                                         $category = explode(":", $tag)[0];
+                                        if ($category == "copy") {
+                                            $category = "copyright";
+                                        } elseif ($category == "art") {
+                                            $category = "artist";
+                                        } elseif ($category == "char") {
+                                            $category = "character";
+                                        }
                                     } else {
                                         $category = "general";
                                     }
@@ -494,6 +501,26 @@ if ($action == "s" || $action == "i") {
         $nextId = $nextIdResult->fetch_assoc()["post_id"];
     }
 
+    if (in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+        $reportSql = "SELECT report_id, user_id, reason, status FROM post_reports WHERE post_id = ? AND status = 'reported' LIMIT 1";
+        $reportStmt = $conn->prepare($reportSql);
+        $reportStmt->bind_param("i", $id);
+        $reportStmt->execute();
+        $reportResult = $reportStmt->get_result();
+        if ($reportResult->num_rows > 0) {
+            $report = $reportResult->fetch_assoc();
+            $reporterSql = "SELECT username FROM users WHERE user_id = ?";
+            $reporterStmt = $conn->prepare($reporterSql);
+            $reporterStmt->bind_param("i", $report["user_id"]);
+            $reporterStmt->execute();
+            $reporterResult = $reporterStmt->get_result();
+            $reporter = $reporterResult->fetch_assoc();
+
+            $smarty->assign("report", $report);
+            $smarty->assign("reporter", $reporter);
+        }
+    }
+
     if (isset($_POST["update"])) {
         if (!in_array("tag", $permissions) && !in_array("moderate", $permissions) && !in_array("admin", $permissions) && (!isset($user["user_id"]) || $user["user_id"] != $post["user_id"])) {
             header("Location: /posts.php?a=p&id=$id");
@@ -537,7 +564,7 @@ if ($action == "s" || $action == "i") {
             $tag = trim(strtolower($tag));
             if (!empty($tag)) {
                 $category = determineCategory($tag);
-                $tag = preg_replace("/(copyright|artist|character|general|meta|other):/", "", $tag);
+                $tag = preg_replace("/(copyright|copy|artist|art|character|char|general|meta|other):/", "", $tag);
                 $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
                 $stmt->bind_param("s", $tag);
                 $stmt->execute();

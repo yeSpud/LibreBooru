@@ -3,11 +3,16 @@
         <div class="error_warning">
             {$lang["this_post_is_awaiting_approval"]}
             {if in_array("moderate", $permissions) || in_array("admin", $permissions)}
-                {replace s=$lang["approve_or_delete_post"] n=["[approve]", "[delete]"] r=[
-                    '<a href="javascript:approvePost(\''|cat:$post["post_id"]|cat:'\')">'|cat:$lang["approve"]|cat:'</a>',
-                    '<a href="javascript:deletePost(\''|cat:$post["post_id"]|cat:'\')">'|cat:$lang["delete"]|cat:'</a>'
-                ]}
+                {replace s=$lang["approve_or_delete_post"] n=["[approve]", "[delete]"] r=['<a href="javascript:approvePost(\''|cat:$post["post_id"]|cat:'\')">'|cat:$lang["approve"]|cat:'</a>', '<a href="javascript:deletePost(\''|cat:$post["post_id"]|cat:'\')">'|cat:$lang["delete"]|cat:'</a>']}
             {/if}
+        </div>
+    {/if}
+    {if isset($report)}
+        <div class="error_warning">
+            Post has been reported by <a href="/account.php?a=p&id={$report["user_id"]}"
+                target="_blank">{$reporter["username"]}</a> for "{$report["reason"]}".
+            <a href="javascript:approveReport('{$report["report_id"]}', '{$post["post_id"]}')">{$lang["approve"]}</a> -
+            <a href="javascript:rejectReport('{$report["report_id"]}')">{$lang["reject"]}</a>
         </div>
     {/if}
     {if !$hideOriginalMessage}
