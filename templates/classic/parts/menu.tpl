@@ -27,8 +27,8 @@
                 <a href="/account.php?a=i">{$lang["home"]}</a>
                 {if $logged}
                     <a href="/account.php?a=p&id={$user["user_id"]}">{$lang["my_profile"]}</a>
-                    <a href="/account.php?a=m&t=i">{$lang["my_mail"]}</a>
-                    <a href="/account.php?a=f&id=0">{$lang["my_favourites"]}</a>
+                    <a href="/mail.php?a=i">{$lang["my_mail"]}</a>
+                    <a href="/account.php?a=f&id={$user["user_id"]}">{$lang["my_favourites"]}</a>
                 {else}
                     <a href="/account.php?a=l">{$lang["login"]}</a>
                     <a href="/account.php?a=r">{$lang["register"]}</a>

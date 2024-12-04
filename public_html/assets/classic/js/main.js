@@ -594,7 +594,14 @@ function approveReport(id, post) {
                 console.log(data);
                 if (data.success) {
                   createToast("Report approved successfully.", "toast_success");
-                  reportDiv.remove();
+                  if (reportDiv) {
+                    reportDiv.remove();
+                  } else {
+                    // Timeout 2s
+                    setTimeout(() => {
+                      location.reload();
+                    }, 2000);
+                  }
                 } else {
                   createToast(
                     "Failed to approve report: " + data.error,
@@ -643,7 +650,14 @@ function rejectReport(id) {
         console.log(data);
         if (data.success) {
           createToast("Report rejected successfully.", "toast_success");
-          reportDiv.remove();
+          if (reportDiv) {
+            reportDiv.remove();
+          } else {
+            // Timeout 2s
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          }
         } else {
           createToast("Failed to reject report: " + data.error, "toast_error");
         }

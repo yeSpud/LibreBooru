@@ -9,17 +9,31 @@
 OpenBooru is an open-source Booru. It aims to enable users to host their own
 image-library with an intuitive and extensive search, tagging-system and more.
 
-Table of contents:
-1. Installation
-X. Credits
+Come hang out on Discord: https://discord.5ynchro.net
+I'll be there if you have any questions, requests, and I'll regularly post
+updates on the current devel build!
 
-| LIVE DEMO
+/–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
+| 0. TABLE OF CONTENTS                                  |
+\–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
+
+1. Live Demo
+2. Donations
+3. Installation
+4. Credits
+5. Fun Facts
+
+/–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
+| 1. LIVE EDEMO                                         |
+\–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 See OpenBooru in action at https://openbooru.5ynchro.net
 It's running the latest version with close to no changes to the source.
 Donate to keep it alive :D
 
-| DONATIONS
+/–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
+| 2. DONATIONS                                          |
+\–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 I Have spent a considerable amount of time writing this. If you like this,
 consider donating over at ko-fi: https://ko-fi.com/aetherwellen
@@ -27,7 +41,7 @@ It really helps me out and keeps the development going <3
 (Regardless of your donation, I will keep working on this tho haha)
 
 /–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
-| 1. INSTALLATION                                       |
+| 3. INSTALLATION                                       |
 \–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 First off, these are the requirements:
@@ -90,7 +104,7 @@ location ~* \.(jpg|jpeg|png|gif|bmp|tiff)$ {
 }
 
 /–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
-| X. CREDITS                                            |
+| 4. CREDITS                                            |
 \–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 As of now, everything (exceptions listed below) has been written by @5ynchrogazer.
@@ -101,7 +115,9 @@ OpenBooru makes use of following libraries:
 - jQuery
 - FFmpeg
 
-| FUN FACTS
+/–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
+| 5. FUN FACTS                                          |
+\–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 ... Every part of OpenBooru was created entirely on my ThinkPad T430 while
     listening to the iCon Radio (https://iconradio.stream.laut.fm/icon_radio)

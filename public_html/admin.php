@@ -40,11 +40,42 @@ if ($action == "u") {
         $status = "approved";
     } elseif (isset($_GET["s"]) && !empty($_GET["s"]) && $_GET["s"] == "r") {
         $status = "rejected";
+    } elseif (isset($_GET["s"]) && !empty($_GET["s"]) && $_GET["s"] == "all") {
+        $status = "all";
     }
 
-    $reportsSql = "SELECT * FROM post_reports WHERE status = ? ORDER BY report_id DESC";
-    $reportsStmt = $conn->prepare($reportsSql);
-    $reportsStmt->bind_param("s", $status);
+    $smarty->assign("status", $status);
+
+    $page = 1;
+    if (isset($_GET["p"]) && !empty($_GET["p"]) && is_numeric($_GET["p"]) && $_GET["p"] > 0) {
+        $page = $_GET["p"];
+    }
+    $perpage = 50;
+    $offset = ($page - 1) * $perpage;
+    $totalPages = 1;
+
+    if ($status == "all") {
+        $reportsSql = "SELECT COUNT(*) FROM post_reports";
+        $reportsResult = $conn->query($reportsSql);
+        $totalReports = $reportsResult->fetch_row()[0];
+        $totalPages = ceil($totalReports / $perpage);
+
+        $reportsSql = "SELECT * FROM post_reports ORDER BY report_id DESC LIMIT ?, ?";
+        $reportsStmt = $conn->prepare($reportsSql);
+        $reportsStmt->bind_param("ii", $offset, $perpage);
+    } else {
+        $totalPagesSql = "SELECT COUNT(*) FROM post_reports WHERE status = ?";
+        $totalPagesStmt = $conn->prepare($totalPagesSql);
+        $totalPagesStmt->bind_param("s", $status);
+        $totalPagesStmt->execute();
+        $totalPagesResult = $totalPagesStmt->get_result();
+        $totalReports = $totalPagesResult->fetch_row()[0];
+        $totalPages = ceil($totalReports / $perpage);
+
+        $reportsSql = "SELECT * FROM post_reports WHERE status = ? ORDER BY report_id DESC LIMIT ?, ?";
+        $reportsStmt = $conn->prepare($reportsSql);
+        $reportsStmt->bind_param("sii", $status, $offset, $perpage);
+    }
     $reportsStmt->execute();
     $reportsResult = $reportsStmt->get_result();
     $reports = [];
@@ -58,6 +89,8 @@ if ($action == "u") {
         $reports[] = $report;
     }
 
+    $smarty->assign("totalPages", $totalPages);
+    $smarty->assign("page", $page);
     $smarty->assign("reports", $reports);
 }
 
