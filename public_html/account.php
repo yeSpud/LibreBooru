@@ -324,7 +324,7 @@ if ($action == "l") {
             $canJudge = true;
         }
 
-        if ($_GET["id"] == $user["user_id"]) {
+        if ($logged && $_GET["id"] == $user["user_id"]) {
             $canJudge = false;
         }
 
@@ -341,9 +341,62 @@ if ($action == "l") {
             }
         }
 
+        if ($canJudge) {
+            if (isset($_POST["judge"])) {
+                $given = isset($_POST["r"]) ? ($_POST["r"] == 1 ? "+" : "-") : $errors[] = "Please select a reputation to give.";
+                $comment = isset($_POST["comment"]) ? (strlen($_POST["comment"]) < 5 ? $errors[] = "Comment must be at least 5 characters." : $_POST["comment"]) : $errors[] = "Please enter a comment.";
+
+                if (empty($errors)) {
+                    $sql = "INSERT INTO reputation (user_id, giver_id, given, comment) VALUES (?, ?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("iiis", $_id, $user["user_id"], $given, $comment);
+                    $stmt->execute();
+
+                    header("Location: /account.php?a=p&id={$_id}&t=r");
+                    exit;
+                }
+            }
+        }
+
+        $reputationSql = "SELECT * FROM reputation WHERE user_id = ? ORDER BY reputation_id DESC";
+        $reputationStmt = $conn->prepare($reputationSql);
+        $reputationStmt->bind_param("i", $_id);
+        $reputationStmt->execute();
+        $reputationResult = $reputationStmt->get_result();
+        $reputation = [];
+        while ($rep = $reputationResult->fetch_assoc()) {
+            $giverSql = "SELECT username FROM users WHERE user_id = ? LIMIT 1";
+            $giverStmt = $conn->prepare($giverSql);
+            $giverStmt->bind_param("i", $rep["giver_id"]);
+            $giverStmt->execute();
+            $giverResult = $giverStmt->get_result();
+            $giver = $giverResult->fetch_assoc();
+
+            $rep["giver_username"] = $giver["username"];
+            $reputation[] = $rep;
+        }
+
+        $smarty->assign("reputation", $reputation);
         $smarty->assign("canJudge", $canJudge);
         $pageTitle = $profile["username"] . "'s Reputation on " . $config["sitename"];
     }
+
+    $repCountPlusSql = "SELECT COUNT(*) AS rep_count_plus FROM reputation WHERE user_id = ? AND given = '+'";
+    $repCountPlusStmt = $conn->prepare($repCountPlusSql);
+    $repCountPlusStmt->bind_param("i", $_id);
+    $repCountPlusStmt->execute();
+    $repCountPlusResult = $repCountPlusStmt->get_result();
+    $repCountPlus = $repCountPlusResult->fetch_assoc()["rep_count_plus"];
+
+    $repCountMinusSql = "SELECT COUNT(*) AS rep_count_minus FROM reputation WHERE user_id = ? AND given = '-'";
+    $repCountMinusStmt = $conn->prepare($repCountMinusSql);
+    $repCountMinusStmt->bind_param("i", $_id);
+    $repCountMinusStmt->execute();
+    $repCountMinusResult = $repCountMinusStmt->get_result();
+    $repCountMinus = $repCountMinusResult->fetch_assoc()["rep_count_minus"];
+
+    $profile["rep_count_plus"] = $repCountPlus;
+    $profile["rep_count_minus"] = $repCountMinus;
 
     $smarty->assign("tab", $tab);
     $smarty->assign("profile", $profile);

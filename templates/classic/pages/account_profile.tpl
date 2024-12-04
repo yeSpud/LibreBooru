@@ -1,7 +1,8 @@
 {if $tab == "r"}
     <h2>{replace s=$lang["x_reputation"] n="[username]" r='<a href="/account.php?a=p&id='|cat:$profile["user_id"]|cat:'">'|cat:$profile["username"]|cat:"</a>"}
     </h2>
-    <h3 class="m-0 p-0 mt-10">{$lang["total"]}: <span style="color:green">+0</span> / <span style="color:red">-0</span></h3>
+    <h3 class="m-0 p-0 mt-10">{$lang["total"]}: <span style="color:green">+{$profile["rep_count_plus"]}</span> / <span
+            style="color:red">-{$profile["rep_count_minus"]}</span></h3>
     {if $canJudge}
         <hr>
         <form method="POST" name="judge">
@@ -22,10 +23,18 @@
     <table class="history_table mt-10">
         <tr>
             <th style="width: 1%"></th>
-            <th style="width: 20%">User</th>
+            <th style="width: 15%">User</th>
             <th>Comment</th>
             <th style="width: 20%; text-align:right">Timestamp</th>
         </tr>
+        {foreach from=$reputation item=item key=key name=name}
+            <tr>
+                <td><b><span style="color:{if $item["given"] == "+"}green{else}red{/if}">{$item["given"]}</span></b></td>
+                <td><a href="/account.php?a=p&id={$item["giver_id"]}">{$item["giver_username"]}</a></td>
+                <td>{$item["comment"]}</td>
+                <td style="text-align:right">{$item["timestamp"]}</td>
+            </tr>
+        {/foreach}
     </table>
 {else}
     <h2>{$profile["username"]}</h2>
@@ -70,7 +79,8 @@
         </tr>
         <tr>
             <td><b>{$lang["reputation"]}</b></td>
-            <td><span style="color:green">+0</span> / <span style="color:red">-0</span> (<a
+            <td><span style="color:green">+{$profile["rep_count_plus"]}</span> / <span
+                    style="color:red">-{$profile["rep_count_minus"]}</span> (<a
                     href="/account.php?a=p&id={$profile["user_id"]}&t=r">{$lang["add"]}</a>)</td>
         </tr>
     </table>
