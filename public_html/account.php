@@ -314,6 +314,20 @@ if ($action == "l") {
             $posts[] = $post;
         }
 
+        $commentCountSql = "SELECT COUNT(*) AS comment_count FROM comments WHERE user_id = ? AND deleted = 0";
+        $commentCountStmt = $conn->prepare($commentCountSql);
+        $commentCountStmt->bind_param("i", $_id);
+        $commentCountStmt->execute();
+        $commentCountResult = $commentCountStmt->get_result();
+        $profile["comment_count"] = $commentCountResult->fetch_assoc()["comment_count"];
+
+        $deletedCommentCountSql = "SELECT COUNT(*) AS deleted_comment_count FROM comments WHERE user_id = ? AND deleted = 1";
+        $deletedCommentCountStmt = $conn->prepare($deletedCommentCountSql);
+        $deletedCommentCountStmt->bind_param("i", $_id);
+        $deletedCommentCountStmt->execute();
+        $deletedCommentCountResult = $deletedCommentCountStmt->get_result();
+        $profile["deleted_comment_count"] = $deletedCommentCountResult->fetch_assoc()["deleted_comment_count"];
+
         $uploads = getPosts($conn, "", 6, 0, "all", determineStatus(strtolower(trim("awaiting|approved|deleted")), $permissions), $profile["username"])[0];
         $smarty->assign("favourites", $posts);
         $smarty->assign("uploads", $uploads);
@@ -349,7 +363,7 @@ if ($action == "l") {
                 if (empty($errors)) {
                     $sql = "INSERT INTO reputation (user_id, giver_id, given, comment) VALUES (?, ?, ?, ?)";
                     $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("iiis", $_id, $user["user_id"], $given, $comment);
+                    $stmt->bind_param("iiss", $_id, $user["user_id"], $given, $comment);
                     $stmt->execute();
 
                     header("Location: /account.php?a=p&id={$_id}&t=r");

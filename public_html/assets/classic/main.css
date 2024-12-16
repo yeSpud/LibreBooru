@@ -272,6 +272,25 @@ button {
   border-radius: 0px;
 }
 
+.comment_gallery {
+  display: flex;
+  gap: 10px;
+}
+
+.comment_gallery div .column a img {
+  flex: 1 1 16.66%; /* 1/6 of the container width */
+}
+
+.comment_gallery div .column .text {
+  flex: 1 1 83.33%; /* 5/6 of the container width */
+}
+
+.comment_gallery a img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
 /* Errors */
 
 .error {

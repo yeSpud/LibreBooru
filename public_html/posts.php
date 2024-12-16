@@ -52,7 +52,7 @@ if ($action == "s" || $action == "i") {
 
     $_tags = explode(" ", $searchTerm);
 
-    $userBlacklist = explode(" ", $user["tag_blacklist"]);
+    $userBlacklist = explode(" ", $user["tag_blacklist"] ?? "");
     $userBlacklist = array_map("trim", $userBlacklist);
     $userBlacklist = array_filter($userBlacklist);
     // Add - before each tag in the blacklist
@@ -73,6 +73,14 @@ if ($action == "s" || $action == "i") {
 
     $_tags = array_filter($_tags);
     $_tags = array_unique($_tags);
+    $tagsWithMinus = [];
+    foreach ($_tags as $key => $tag) {
+        if (str_starts_with($tag, "-")) {
+            $tagsWithMinus[] = $tag;
+            unset($_tags[$key]);
+        }
+    }
+    $_tags = array_merge($_tags, $tagsWithMinus);
 
     $_tags = getTags($conn, $_tags, $config["search_max_tags"], $userBlacklist);
 
@@ -148,6 +156,18 @@ if ($action == "s" || $action == "i") {
         if ($fileSize > $config["upload_max_size"]) {
             $errors[] = "The file is too large. Maximum size: " . $config["upload_max_size"] . " bytes.";
         }
+        // Make sure the file is a real image or video and not a virus
+        if (in_array($fileExt, ["jpg", "jpeg", "png", "gif"])) {
+            $image = getimagesize($fileTmpName);
+            if (!$image) {
+                $errors[] = "Invalid image file.";
+            }
+        } elseif (in_array($fileExt, ["mp4", "webm", "mkv"])) {
+            $video = getimagesize($fileTmpName);
+            if (!$video) {
+                $errors[] = "Invalid video file.";
+            }
+        }
 
         if (empty($errors)) {
             $fileDestination = __DIR__ . "/uploads/tmp/" . $fileName;
@@ -160,7 +180,7 @@ if ($action == "s" || $action == "i") {
 
             if (empty($errors)) {
                 $md5 = md5_file($fileDestination);
-                if (file_exists(__DIR__ . "/uploads/images/$md5" . "." . $fileExt)) {
+                if (file_exists(__DIR__ . "/uploads/images/$md5" . "." . $fileExt) || file_exists(__DIR__ . "/uploads/videos/$md5" . "." . $fileExt)) {
                     $errors[] = "File already exists.";
                     unlink($fileDestination);
                 }
@@ -223,6 +243,27 @@ if ($action == "s" || $action == "i") {
                         if ($returnVar !== 0) {
                             $errors[] = "Failed to create video thumbnail. Command output: " . implode("<br>", $output);
                         }
+
+                        // Now resize the thumbnail
+                        $thumbnailImage = imagecreatefromstring(file_get_contents($thumbnailDestination));
+                        $thumbnailWidth = imagesx($thumbnailImage);
+                        $thumbnailHeight = imagesy($thumbnailImage);
+                        $thumbnailAspectRatio = $thumbnailWidth / $thumbnailHeight;
+
+                        if ($thumbnailWidth > $config["thumbnail_width"] || $thumbnailHeight > $config["thumbnail_height"]) {
+                            if ($thumbnailHeight > $config["thumbnail_height"]) {
+                                $newHeight = $config["thumbnail_height"];
+                                $newWidth = $newHeight * $thumbnailAspectRatio;
+                            }
+                            if ($thumbnailWidth > $config["thumbnail_width"]) {
+                                $newWidth = $config["thumbnail_width"];
+                                $newHeight = $newWidth / $thumbnailAspectRatio;
+                            }
+                            $newImage = imagecreatetruecolor((int)$newWidth, (int)$newHeight);
+                            imagecopyresampled($newImage, $thumbnailImage, 0, 0, 0, 0, (int)$newWidth, (int)$newHeight, $thumbnailWidth, $thumbnailHeight);
+                            imagejpeg($newImage, $thumbnailDestination, 100);
+                        }
+
                         $type = "videos";
                     }
 

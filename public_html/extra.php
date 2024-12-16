@@ -144,6 +144,94 @@ if ($action == "t") {
     $smarty->assign("searchTerm", $searchTerm);
     $smarty->assign("pagetitle", "Browse all Tags on " . $config["sitename"]);
     $smarty->assign("activePage", "tags");
+} elseif ($action == "c") {
+    $searchTerm = "";
+    if (isset($_GET["s"]) && !empty($_GET["s"])) {
+        $searchTerm = sanitize($_GET["s"]);
+    }
+
+    $page = 1;
+    if (isset($_GET["p"]) && is_numeric($_GET["p"]) && $_GET["p"] > 0) {
+        $page = intval($_GET["p"]);
+    }
+    $perpage = $config["post_display_limit"] * 2;
+    $offset = ($page - 1) * $perpage;
+
+    $userSearch = "AND 0=0";
+    $_searchTerm = $searchTerm;
+    if (str_contains($searchTerm, "user:")) {
+        if (isset(explode("user:", $searchTerm)[1])) {
+            $userNameSearch = sanitize(explode("user:", $searchTerm)[1]);
+            $_searchTerm = trim(str_replace("user:$userNameSearch", "", $_searchTerm));
+            $userSearch = "AND users.username = '$userNameSearch'";
+        }
+    }
+    $_searchTerm = empty($searchTerm) ? "%" : "%$_searchTerm%";
+
+    $showDeleted = "";
+    if (!in_array("moderate", $permissions) && !in_array("admin", $permissions)) {
+        $showDeleted = "AND comments.deleted = 0";
+    }
+
+    $sql = "SELECT comments.comment_id, comments.content, comments.timestamp, comments.user_id, comments.deleted as cdeleted, comments.post_id, users.username, posts.image_url, posts.file_extension, posts.deleted, posts.is_approved
+            FROM comments
+            LEFT JOIN users ON comments.user_id = users.user_id
+            LEFT JOIN posts ON comments.post_id = posts.post_id
+            WHERE comments.content LIKE ?
+            $showDeleted
+            $userSearch
+            ORDER BY comments.timestamp DESC
+            LIMIT $offset, $perpage";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $_searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $comments = [];
+    while ($row = $result->fetch_assoc()) {
+        $commentReportedStatus = "none";
+        $commentReportedSql = "SELECT report_id, status FROM comment_reports WHERE comment_id = ? LIMIT 1";
+        $commentReportedStmt = $conn->prepare($commentReportedSql);
+        $commentReportedStmt->bind_param("i", $row["comment_id"]);
+        $commentReportedStmt->execute();
+        $commentReportedResult = $commentReportedStmt->get_result();
+        if ($commentReportedResult->num_rows > 0) {
+            $commentReportedStatus = $commentReportedResult->fetch_assoc()["status"];
+        }
+        $row["reportedStatus"] = $commentReportedStatus;
+
+        $commentScoreSql = "SELECT SUM(vote) as score FROM comment_votes WHERE comment_id = ?";
+        $commentScoreStmt = $conn->prepare($commentScoreSql);
+        $commentScoreStmt->bind_param("i", $row["comment_id"]);
+        $commentScoreStmt->execute();
+        $commentScoreResult = $commentScoreStmt->get_result();
+        $row["score"] = $commentScoreResult->fetch_assoc()["score"];
+        if ($row["score"] == null) {
+            $row["score"] = 0;
+        }
+
+        $comments[] = $row;
+    }
+
+    // Get total number of comments for pagination
+    $sqlTotal = "SELECT COUNT(*) as total FROM comments
+                 LEFT JOIN users ON comments.user_id = users.user_id
+                 WHERE comments.content LIKE ?
+                 $showDeleted
+                 $userSearch";
+    $stmtTotal = $conn->prepare($sqlTotal);
+    $stmtTotal->bind_param("s", $_searchTerm);
+    $stmtTotal->execute();
+    $resultTotal = $stmtTotal->get_result();
+    $totalComments = $resultTotal->fetch_assoc()["total"];
+    $totalPages = ceil($totalComments / $perpage);
+
+    $smarty->assign("comments", $comments);
+    $smarty->assign("page", $page);
+    $smarty->assign("totalPages", $totalPages);
+
+    $smarty->assign("searchTerm", $searchTerm);
+    $smarty->assign("pagetitle", "Comments on " . $config["sitename"]);
+    $smarty->assign("activePage", "comments");
 }
 
 $smarty->assign("action", $action);
