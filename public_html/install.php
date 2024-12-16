@@ -1,6 +1,6 @@
 <?php
 
-$version = "0.1.1-devel";
+$version = "0.1.2-devel";
 $config["debug"] = true;
 $config["externalapi"] = false;
 $config["language"] = "en";
@@ -360,10 +360,24 @@ if ($step == 0) {
                                 </select>
                             </label>
                         </div>
-                        <label>
-                            Contact Email (empty to hide)
-                            <input type="email" name="contact">
-                        </label>
+                        <div class="split">
+                            <label class="element">
+                                Contact Email (empty to hide)
+                                <input type="email" name="contact">
+                            </label>
+                            <label class="element">
+                                Default Rating
+                                <select name="default_rating" required>
+                                    <option value="all">All</option>
+                                    <option value="safe">Safe</option>
+                                    <option value="safequestionable" selected>Safe & Questionable</option>
+                                    <option value="safeexplicit">Safe & Explicit</option>
+                                    <option value="questionable">Questionable</option>
+                                    <option value="questionableexplicit">Questionable & Explicit</option>
+                                    <option value="explicit">Explicit</option>
+                                </select>
+                            </label>
+                        </div>
                     </form>
                 </div>
 

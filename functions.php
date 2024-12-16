@@ -362,10 +362,25 @@ function nanotime()
 
 
 
-function getTags($conn, $tags, $maxTags)
+function getTags($conn, $tags, $maxTags, $blacklist = [])
 {
     $count = 0;
     $_tags = [];
+
+
+    $tags = array_merge($blacklist, $tags);
+
+    // Remove tags from $_tags that are in the blacklist without the minus
+    foreach ($tags as $overwriteBlacklistTag) {
+        $tag = "-" . $overwriteBlacklistTag;
+        if (($key = array_search($tag, $tags)) !== false) {
+            unset($tags[$key]);
+        }
+    }
+
+    $tags = array_filter($tags);
+    $tags = array_unique($tags);
+
     foreach ($tags as $tag) {
         if (!str_contains($tag, "rating:") && !str_contains($tag, "user:") && !str_contains($tag, "status:")) {
             $count++;
@@ -393,9 +408,9 @@ function getTags($conn, $tags, $maxTags)
                 if (str_contains($tag, "*")) {
                     $wildcard = true;
                     $tag = str_replace("*", "%", $tag); // Convert * to %
-                    $tagQuery = "SELECT tag_id FROM tags WHERE tag_name LIKE ?";
+                    $tagQuery = "SELECT tag_id, tag_name FROM tags WHERE tag_name LIKE ?";
                 } else {
-                    $tagQuery = "SELECT tag_id FROM tags WHERE tag_name = ?";
+                    $tagQuery = "SELECT tag_id, tag_name FROM tags WHERE tag_name = ?";
                 }
 
                 $stmt = $conn->prepare($tagQuery);
@@ -411,8 +426,11 @@ function getTags($conn, $tags, $maxTags)
                 }
 
                 while ($row = $tagResult->fetch_assoc()) {
+                    //echo $isBlacklist ? "-" : "";
+                    //echo '"' . $row["tag_name"] . "\"<br>";
                     $_tags[] = [
                         "id" => $wildcard ? $tag : $row["tag_id"],
+                        "name" => $row["tag_name"],
                         "wild" => $wildcard,
                         "blacklist" => $isBlacklist,
                     ];
@@ -422,6 +440,19 @@ function getTags($conn, $tags, $maxTags)
             }
         }
     }
+
+    foreach ($_tags as $key => $tag) {
+        foreach ($_tags as $innerKey => $innerTag) {
+            //echo ($tag["blacklist"] ? "+" : "-") . $tag['name'] . " " . ($innerTag["blacklist"] ? "+" : "-") . $innerTag['name'] . "<br>";
+            if ($tag['name'] === $innerTag['name'] && $tag["blacklist"] && !$innerTag["blacklist"]) {
+                unset($_tags[$key]);
+                break;
+            }
+        }
+    }
+
+    //print_r($_tags);
+
     return [$_tags, $count];
 }
 

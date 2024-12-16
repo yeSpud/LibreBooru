@@ -11,7 +11,7 @@
         <a href="/account.php?a=i" {if $activePage == "account"}class="active" {/if}>{$lang["my_account"]}</a>
         <a href="/posts.php?a=i" {if $activePage == "browse"}class="active" {/if}>{$lang["browse"]}</a>
         <a href="/extra.php?a=p">{$lang["playlist"]}</a>
-        <a href="/extra.php?a=c">{$lang["comments"]}</a>
+        <a href="/extra.php?a=c" {if $activePage == "comments"}class="active" {/if}>{$lang["comments"]}</a>
         <a href="/wiki.php?a=i" {if $activePage == "wiki"}class="active" {/if}>{$lang["wiki"]}</a>
         <a href="/extra.php?a=t" {if $activePage == "tags"}class="active" {/if}>{$lang["tags"]}</a>
         <a href="/forum.php?a=i">{$lang["forum"]}</a>
@@ -46,6 +46,8 @@
                 <a href="/extra.php?a=a">{$lang["about"]}</a>
                 <a href="/extra.php?a=h">{$lang["help"]}</a>
                 <a href="/extra.php?a=o">{$lang["tos"]}</a>
+            {elseif $activePage == "comments"}
+                <a href="/extra.php?a=c">{$lang["list"]}</a>
             {elseif $activePage == "wiki"}
                 <a href="/wiki.php?a=i">{$lang["list"]}</a>
                 {if isset($term)}

@@ -89,6 +89,80 @@
                 {/if}
             </div>
         {/if}
+    {elseif $action == "c"}
+        <form method="GET" action="/extra.php" class="home_search mb-5">
+            <input type="hidden" name="a" value="c">
+            <input type="text" name="s" {if isset($searchTerm)}value="{$searchTerm}" {/if} onkeyup="wiki_search(this)"
+                autocomplete="off">
+            <button type="submit" class="mt-5">{$lang["search"]}</button>
+        </form>
+        {if empty($comments)}
+            <p class="m-0 mt-10">{$lang["nobody_here_but_us_ravens"]}</p>
+        {else}
+            {foreach from=$comments item=item key=key name=name}
+                <div class="comment_gallery">
+                    <div class="column">
+                        <a href="/posts.php?a=p&id={$item.post_id}">
+                            <img src="/uploads/thumbs/{if $item.deleted && (in_array("moderate", $permissions) && in_array("admin", $permissions))}.{/if}{$item.image_url}.{if in_array($item.file_extension, ["mp4", "mkv", "webm"])}jpg{else}{$item.file_extension}{/if}"
+                                alt="Post"
+                                class="{if !$item.is_approved}post_awaiting{elseif $item.deleted}post_deleted{else}{if $item.file_extension == "gif"}post_gif{/if}{if in_array($item.file_extension, ["mp4", "mkv", "webm"])}post_video{/if}{/if}">
+                        </a>
+                    </div>
+                    <div class="column">
+                        <div class="text">
+                            <p class="m-0 p-0" id="{$item["comment_id"]}" {if $item["cdeleted"]}style="color:red" {/if}>
+                                <b>
+                                    <a href="/account.php?a=p&id={$item["user_id"]}" target="_blank">{$item["username"]}</a>
+                                    <a href="/posts.php?a=p&id={$item.post_id}#{$item["comment_id"]}"><span
+                                            style="color:grey;">#{$item["comment_id"]}</span></a>
+                                    on
+                                    <a href="/posts.php?a=p&id={$item.post_id}">#{$item.post_id}</a>
+                                    {replace s=$lang["at_timestamp"] n="[timestamp]" r=$item["timestamp"]} |
+                                    {$lang["score"]}: <span id="commentScore{$item["comment_id"]}">{$item["score"]}</span>
+                                    (<a href="javascript:voteComment('{$item["comment_id"]}', 'up');">{$lang["up"]|lower}</a> /
+                                    <a href="javascript:voteComment('{$item["comment_id"]}', 'down');">{$lang["down"]|lower}</a> /
+                                    <a
+                                        href="javascript:voteComment('{$item["comment_id"]}', 'remove');">{$lang["remove"]|lower}</a>)
+                                    |
+                                    {if in_array("report", $permissions)}
+                                        {if $item["reportedStatus"] == "none"}
+                                            <a href="javascript:reportComment('{$item["comment_id"]}')">{$lang["report_to_moderation"]}</a>
+                                        {elseif $item["reportedStatus"] == "reported"}
+                                            {$lang["flagged_for_deletion"]}
+                                        {elseif $item["reportedStatus"] == "approved" && (in_array("moderate", $permissions) || in_array("admin", $permissions))}
+                                            <a href="/admin.php?a=r&t=c&s=all&f={$item["comment_id"]}">{$lang["view_report"]}</a>
+                                        {else}
+                                            {$lang["report_was_denied"]}
+                                        {/if}
+                                    {else}
+                                        {$lang["no_permission_to_report"]}
+                                    {/if}
+                                    {* Do I really need this? Idk... I'm too lazy :P ~5ynchro *}
+                                    {* {if isset($user["user_id"]) && $user["user_id"] == $item["user_id"] || in_array("moderate", $permissions) || in_array("admin", $permissions)}
+                                |
+                                <a href="javascript:editComment('{$item["comment_id"]}')">{$lang["edit"]}</a> /
+                                <a href="javascript:deleteComment('{$item["comment_id"]}')">{$lang["delete"]}</a>
+                            {/if} *}
+                                </b>
+                            </p>
+                            {$item["content"]}
+                        </div>
+                    </div>
+                </div>
+            {/foreach}
+        {/if}
+
+        <div class="pagination">
+            {if $page > 1}
+                <a href="/extra.php?a=c&s={$searchTerm}&p=1">&laquo; {$lang["first"]}</a>
+                <a href="/extra.php?a=c&s={$searchTerm}&p={$page - 1}">{$lang["previous"]}</a>
+            {/if}
+
+            {if $page < $totalPages}
+                <a href="/extra.php?a=c&s={$searchTerm}&p={$page + 1}">{$lang["next"]}</a>
+                <a href="/extra.php?a=c&s={$searchTerm}&p={$totalPages}">{$lang["last"]} &raquo;</a>
+            {/if}
+        </div>
     {/if}
 </div>
 

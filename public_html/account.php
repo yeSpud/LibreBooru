@@ -314,6 +314,20 @@ if ($action == "l") {
             $posts[] = $post;
         }
 
+        $commentCountSql = "SELECT COUNT(*) AS comment_count FROM comments WHERE user_id = ? AND deleted = 0";
+        $commentCountStmt = $conn->prepare($commentCountSql);
+        $commentCountStmt->bind_param("i", $_id);
+        $commentCountStmt->execute();
+        $commentCountResult = $commentCountStmt->get_result();
+        $profile["comment_count"] = $commentCountResult->fetch_assoc()["comment_count"];
+
+        $deletedCommentCountSql = "SELECT COUNT(*) AS deleted_comment_count FROM comments WHERE user_id = ? AND deleted = 1";
+        $deletedCommentCountStmt = $conn->prepare($deletedCommentCountSql);
+        $deletedCommentCountStmt->bind_param("i", $_id);
+        $deletedCommentCountStmt->execute();
+        $deletedCommentCountResult = $deletedCommentCountStmt->get_result();
+        $profile["deleted_comment_count"] = $deletedCommentCountResult->fetch_assoc()["deleted_comment_count"];
+
         $uploads = getPosts($conn, "", 6, 0, "all", determineStatus(strtolower(trim("awaiting|approved|deleted")), $permissions), $profile["username"])[0];
         $smarty->assign("favourites", $posts);
         $smarty->assign("uploads", $uploads);
@@ -349,7 +363,7 @@ if ($action == "l") {
                 if (empty($errors)) {
                     $sql = "INSERT INTO reputation (user_id, giver_id, given, comment) VALUES (?, ?, ?, ?)";
                     $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("iiis", $_id, $user["user_id"], $given, $comment);
+                    $stmt->bind_param("iiss", $_id, $user["user_id"], $given, $comment);
                     $stmt->execute();
 
                     header("Location: /account.php?a=p&id={$_id}&t=r");
@@ -400,6 +414,37 @@ if ($action == "l") {
 
     $smarty->assign("tab", $tab);
     $smarty->assign("profile", $profile);
+} elseif ($action == "o") {
+    if (isset($_POST["save_options"])) {
+        $blacklist = trim($_POST["tag_blacklist"] ?? "");
+        $ratings = ["all", "safe", "safequestionable", "safeexplicit", "questionable", "questionableexplicit", "explicit"];
+        $rating = isset($_POST["default_rating"]) && in_array($_POST["default_rating"], $ratings) ? $_POST["default_rating"] : ($config["default_rating"] ?? "safequestionable");
+
+        if ($logged) {
+            $sql = "UPDATE users SET tag_blacklist = ?, default_rating = ? WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssi", $blacklist, $rating, $user["user_id"]);
+            $stmt->execute();
+        } else {
+            setcookie("tagBlacklist", $blacklist, strtotime("+999 years"), "/", "", false, true);
+            setcookie("defaultRating", $rating, strtotime("+999 years"), "/", "", false, true);
+        }
+
+        if (isset($_POST["show_message"])) {
+            setcookie("hideOriginalMessage", "", time() - 3600, "/", "", false, true);
+        } else {
+            setcookie("hideOriginalMessage", "true", strtotime("+999 years"), "/", "", false, true);
+        }
+
+        if (isset($_POST["always_show_original"])) {
+            setcookie("showOriginal", "true", strtotime("+999 years"), "/", "", false, true);
+        } else {
+            setcookie("showOriginal", "", time() - 3600, "/", "", false, true);
+        }
+
+        header("Location: /account.php?a=o");
+        exit;
+    }
 }
 
 if (!empty($errors)) {

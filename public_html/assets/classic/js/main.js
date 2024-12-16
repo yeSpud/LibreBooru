@@ -494,6 +494,45 @@ function votePost(id, action) {
     });
 }
 
+function voteComment(id, action) {
+  // Can only be "up", "down", or "remove"
+  if (!["up", "down", "remove"].includes(action)) {
+    createToast("Invalid vote action.", "toast_error");
+    return;
+  }
+  fetch(`/api/vote_comment.php`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `id=${encodeURIComponent(id)}&action=${encodeURIComponent(action)}`,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      if (data.success) {
+        createToast(data.message, "toast_success");
+        // Update vote count span id = postScore and math the vote count
+        var score = document.getElementById("commentScore" + id);
+        if (score) {
+          // data.vote is either 1, -1, or 0, math that to the current score
+          var currentScore = parseInt(score.innerHTML);
+          score.innerHTML = currentScore + data.vote;
+        }
+        // Optionally, update the UI
+      } else {
+        createToast("Failed to submit vote: " + data.error, "toast_error");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      createToast(
+        "An error occurred while submitting the vote.",
+        "toast_error"
+      );
+    });
+}
+
 function reportPost(id) {
   var reason = prompt("Please enter the reason for reporting this post:");
   if (reason) {
@@ -520,6 +559,40 @@ function reportPost(id) {
         console.error("Error:", error);
         createToast(
           "An error occurred while reporting the post.",
+          "toast_error"
+        );
+      });
+  } else {
+    createToast("Reporting cancelled. Reason is required.", "toast_warning");
+  }
+}
+
+function reportComment(id) {
+  var reason = prompt("Please enter the reason for reporting this comment:");
+  if (reason) {
+    fetch(`/api/report_comment.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `id=${encodeURIComponent(id)}&reason=${encodeURIComponent(reason)}`,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          createToast("Comment reported successfully.", "toast_success");
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        } else {
+          createToast("Failed to report comment: " + data.error, "toast_error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        createToast(
+          "An error occurred while reporting the comment.",
           "toast_error"
         );
       });
@@ -562,13 +635,19 @@ function toggleFavourite(id) {
     });
 }
 
-function approveReport(id, post) {
+function approveReport(id, post, type = "post") {
   var confirmation = confirm("Are you sure you want to approve this report?");
   var reportDiv = document.getElementById("report-" + id);
   if (confirmation) {
     var reason = prompt("Please enter the reason for approving this report:");
     if (reason) {
-      fetch(`/api/delete_post.php`, {
+      let url = "";
+      if (type == "post") {
+        url = `/api/delete_post.php`;
+      } else {
+        url = `/api/delete_comment.php`;
+      }
+      fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -581,8 +660,18 @@ function approveReport(id, post) {
         .then((data) => {
           console.log(data);
           if (data.success) {
-            createToast("Post deleted successfully.", "toast_success");
-            fetch(`/api/approve_report.php`, {
+            if (type == "post") {
+              createToast("Post deleted successfully.", "toast_success");
+            } else {
+              createToast("Comment deleted successfully.", "toast_success");
+            }
+            url = "";
+            if (type == "post") {
+              url = `/api/approve_report.php`;
+            } else {
+              url = `/api/approve_comment_report.php`;
+            }
+            fetch(url, {
               method: "POST",
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -618,15 +707,32 @@ function approveReport(id, post) {
               });
             // Optionally, redirect or update the UI
           } else {
-            createToast("Failed to delete post: " + data.error, "toast_error");
+            if (type == "post") {
+              createToast(
+                "Failed to delete post: " + data.error,
+                "toast_error"
+              );
+            } else {
+              createToast(
+                "Failed to delete comment: " + data.error,
+                "toast_error"
+              );
+            }
           }
         })
         .catch((error) => {
           console.error("Error:", error);
-          createToast(
-            "An error occurred while deleting the post.",
-            "toast_error"
-          );
+          if (type == "post") {
+            createToast(
+              "An error occurred while deleting the post.",
+              "toast_error"
+            );
+          } else {
+            createToast(
+              "An error occurred while deleting the comment.",
+              "toast_error"
+            );
+          }
         });
     } else {
       createToast("Approval cancelled. Reason is required.", "toast_warning");
@@ -652,6 +758,89 @@ function rejectReport(id) {
           createToast("Report rejected successfully.", "toast_success");
           if (reportDiv) {
             reportDiv.remove();
+          } else {
+            // Timeout 2s
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          }
+        } else {
+          createToast("Failed to reject report: " + data.error, "toast_error");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        createToast(
+          "An error occurred while rejecting the report.",
+          "toast_error"
+        );
+      });
+  }
+}
+
+function rejectReport(id, type = "post") {
+  var confirmation = confirm("Are you sure you want to reject this report?");
+  var reportDiv = document.getElementById("report-" + id);
+  if (confirmation) {
+    let url = "";
+    if (type == "post") {
+      url = `/api/reject_report.php`;
+    } else {
+      url = `/api/reject_comment_report.php`;
+    }
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `id=${encodeURIComponent(id)}`,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          createToast("Report rejected successfully.", "toast_success");
+          if (reportDiv) {
+            reportDiv.remove();
+            if (type == "comment") {
+              fetch(`/api/restore_comment.php`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `id=${encodeURIComponent(id)}`,
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log(data);
+                  if (data.success) {
+                    createToast(
+                      "Comment restored successfully.",
+                      "toast_success"
+                    );
+                    if (reportDiv) {
+                      reportDiv.remove();
+                    } else {
+                      // Timeout 2s
+                      setTimeout(() => {
+                        location.reload();
+                      }, 2000);
+                    }
+                  } else {
+                    createToast(
+                      "Failed to restore comment: " + data.error,
+                      "toast_error"
+                    );
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                  createToast(
+                    "An error occurred while rejecting the report.",
+                    "toast_error"
+                  );
+                });
+            }
           } else {
             // Timeout 2s
             setTimeout(() => {

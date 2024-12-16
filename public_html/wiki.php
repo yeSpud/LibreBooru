@@ -174,17 +174,20 @@ if ($action == "i") {
             $pixivId = null;
             $fanboxId = null;
             $patreon = null;
+            $kofi = null;
             $twitter_id = null;
             if ($term) {
                 $pixivId = !empty($term["pixiv_id"]) ? $term["pixiv_id"] : null;
                 $fanboxId = !empty($term["fanbox_id"]) ? $term["fanbox_id"] : null;
                 $patreon = !empty($term["patreon"]) ? $term["patreon"] : null;
+                $kofi = !empty($term["kofi"]) ? $term["kofi"] : null;
                 $twitter_id = !empty($term["twitter_id"]) ? $term["twitter_id"] : null;
             }
             if ($tag["category"] == "artist") {
                 $pixivId = $conn->real_escape_string($_POST["pixiv_id"]);
                 $fanboxId = $conn->real_escape_string($_POST["fanbox_id"]);
                 $patreon = $conn->real_escape_string($_POST["patreon"]);
+                $kofi = $conn->real_escape_string($_POST["kofi"]);
                 $twitter_id = $conn->real_escape_string($_POST["twitter_id"]);
             }
             if ($isMod) {
@@ -198,23 +201,23 @@ if ($action == "i") {
 
             // Create or update the term
             if ($term) {
-                $termSql = "UPDATE wiki SET content = ?, locked = ?, locked_by = ?, pixiv_id = ?, fanbox_id = ?, patreon = ?, twitter_id = ? WHERE wiki_term = ?";
+                $termSql = "UPDATE wiki SET content = ?, locked = ?, locked_by = ?, pixiv_id = ?, fanbox_id = ?, patreon = ?, kofi = ?, twitter_id = ? WHERE wiki_term = ?";
                 $stmt = $conn->prepare($termSql);
-                $stmt->bind_param("sissssss", $content, $locked, $lockedBy, $pixivId, $fanboxId, $patreon, $twitter_id, $_term);
+                $stmt->bind_param("sisssssss", $content, $locked, $lockedBy, $pixivId, $fanboxId, $patreon, $kofi, $twitter_id, $_term);
             } else {
-                $termSql = "INSERT INTO wiki (wiki_term, content, locked, locked_by, pixiv_id, fanbox_id, patreon, twitter_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $termSql = "INSERT INTO wiki (wiki_term, content, locked, locked_by, pixiv_id, fanbox_id, patreon, kofi, twitter_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($termSql);
-                $stmt->bind_param("ssisssssi", $_term, $content, $locked, $lockedBy, $pixivId, $fanboxId, $patreon, $twitter_id, $user["user_id"]);
+                $stmt->bind_param("ssissssssi", $_term, $content, $locked, $lockedBy, $pixivId, $fanboxId, $patreon, $kofi, $twitter_id, $user["user_id"]);
             }
 
             $conn->begin_transaction();
             $stmt->execute();
 
-            if ($content != $term["content"]) {
+            if ($content != $term["content"] || $pixivId != $term["pixiv_id"] || $fanboxId != $term["fanbox_id"] || $patreon != $term["patreon"] || $kofi != $term["kofi"] || $twitter_id != $term["twitter_id"]) {
                 // Insert into wiki_history
-                $historySql = "INSERT INTO wiki_history (wiki_term, old_content, user_id, pixiv_id, patreon, twitter_id, fanbox_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                $historySql = "INSERT INTO wiki_history (wiki_term, old_content, user_id, pixiv_id, patreon, kofi, twitter_id, fanbox_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 $historyStmt = $conn->prepare($historySql);
-                $historyStmt->bind_param("ssissss", $_term, $content, $user["user_id"], $pixivId, $patreon, $twitter_id, $fanboxId);
+                $historyStmt->bind_param("ssisssss", $_term, $content, $user["user_id"], $pixivId, $patreon, $kofi, $twitter_id, $fanboxId);
                 $historyStmt->execute();
             }
             $conn->commit();

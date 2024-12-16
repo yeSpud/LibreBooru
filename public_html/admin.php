@@ -55,16 +55,32 @@ if ($action == "u") {
     $totalPages = 1;
 
     if ($status == "all") {
-        $reportsSql = "SELECT COUNT(*) FROM post_reports";
+        if ($reportsType == "p") {
+            $reportsSql = "SELECT COUNT(*) FROM post_reports";
+        } else {
+            $reportsSql = "SELECT COUNT(*) FROM comment_reports";
+        }
         $reportsResult = $conn->query($reportsSql);
         $totalReports = $reportsResult->fetch_row()[0];
         $totalPages = ceil($totalReports / $perpage);
 
-        $reportsSql = "SELECT * FROM post_reports ORDER BY report_id DESC LIMIT ?, ?";
+        if ($reportsType == "p") {
+            $reportsSql = "SELECT * FROM post_reports ORDER BY report_id DESC LIMIT ?, ?";
+        } else {
+            if (isset($_GET["f"]) && !empty($_GET["f"]) && is_numeric($_GET["f"])) {
+                $reportsSql = "SELECT * FROM comment_reports WHERE comment_id = {$_GET["f"]} ORDER BY report_id DESC LIMIT ?, ?";
+            } else {
+                $reportsSql = "SELECT * FROM comment_reports ORDER BY report_id DESC LIMIT ?, ?";
+            }
+        }
         $reportsStmt = $conn->prepare($reportsSql);
         $reportsStmt->bind_param("ii", $offset, $perpage);
     } else {
-        $totalPagesSql = "SELECT COUNT(*) FROM post_reports WHERE status = ?";
+        if ($reportsType == "p") {
+            $totalPagesSql = "SELECT COUNT(*) FROM post_reports WHERE status = ?";
+        } else {
+            $totalPagesSql = "SELECT COUNT(*) FROM comment_reports WHERE status = ?";
+        }
         $totalPagesStmt = $conn->prepare($totalPagesSql);
         $totalPagesStmt->bind_param("s", $status);
         $totalPagesStmt->execute();
@@ -72,7 +88,11 @@ if ($action == "u") {
         $totalReports = $totalPagesResult->fetch_row()[0];
         $totalPages = ceil($totalReports / $perpage);
 
-        $reportsSql = "SELECT * FROM post_reports WHERE status = ? ORDER BY report_id DESC LIMIT ?, ?";
+        if ($reportsType == "p") {
+            $reportsSql = "SELECT * FROM post_reports WHERE status = ? ORDER BY report_id DESC LIMIT ?, ?";
+        } else {
+            $reportsSql = "SELECT * FROM comment_reports WHERE status = ? ORDER BY report_id DESC LIMIT ?, ?";
+        }
         $reportsStmt = $conn->prepare($reportsSql);
         $reportsStmt->bind_param("sii", $status, $offset, $perpage);
     }
@@ -86,6 +106,24 @@ if ($action == "u") {
         $userStmt->execute();
         $userResult = $userStmt->get_result();
         $report["username"] = $userResult->fetch_assoc()["username"];
+
+        if ($reportsType == "c") {
+            $commentSql = "SELECT content, user_id FROM comments WHERE comment_id = ?";
+            $commentStmt = $conn->prepare($commentSql);
+            $commentStmt->bind_param("i", $report["comment_id"]);
+            $commentStmt->execute();
+            $commentResult = $commentStmt->get_result();
+            $commentResult = $commentResult->fetch_assoc();
+            $report["comment"] = $commentResult["content"];
+
+            $commentAuthorSql = "SELECT username FROM users WHERE user_id = ?";
+            $commentAuthorStmt = $conn->prepare($commentAuthorSql);
+            $commentAuthorStmt->bind_param("i", $commentResult["user_id"]);
+            $commentAuthorStmt->execute();
+            $commentAuthorResult = $commentAuthorStmt->get_result();
+            $report["author_id"] = $commentResult["user_id"];
+            $report["author"] = $commentAuthorResult->fetch_assoc()["username"];
+        }
         $reports[] = $report;
     }
 

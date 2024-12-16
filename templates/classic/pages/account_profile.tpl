@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <td><b>{$lang["comments"]} ({$lang["deleted"]})</b></td>
-            <td><a href="/extra.php?a=c&s=user:{$profile["username"]}">0</a> (0)</td>
+            <td><a href="/extra.php?a=c&s=user:{$profile["username"]}">{$profile["comment_count"]}</a> ({$profile["deleted_comment_count"]})</td>
         </tr>
         <tr>
             <td><b>{$lang["tag_edits"]} / {$lang["wiki_edits"]}</b></td>

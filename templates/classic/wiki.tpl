@@ -102,18 +102,22 @@
                     <input type="text" name="patreon" id="patreon" value="{if isset($term["patreon"])}{$term["patreon"]}{/if}"
                         autocomplete="off" tabindex="4"><br>
 
+                    <label for="kofi" class="small"><b>Ko-Fi</b> ({$lang["optional"]|lower})</label><br>
+                    <input type="text" name="kofi" id="kofi" value="{if isset($term["kofi"])}{$term["kofi"]}{/if}"
+                        autocomplete="off" tabindex="5"><br>
+
                     <label for="twitter" class="small"><b>Twitter</b> ({$lang["optional"]|lower})</label><br>
                     <input type="text" name="twitter_id" id="twitter"
-                        value="{if isset($term["twitter_id"])}{$term["twitter_id"]}{/if}" autocomplete="off" tabindex="5"><br>
+                        value="{if isset($term["twitter_id"])}{$term["twitter_id"]}{/if}" autocomplete="off" tabindex="6"><br>
                 {/if}
 
                 {if $isMod}
                     <label class="small"><input type="checkbox" name="locked" value="1"
-                            {if isset($term["locked"]) && $term["locked"] == 1}checked{/if} tabindex="6">
+                            {if isset($term["locked"]) && $term["locked"] == 1}checked{/if} tabindex="7">
                         <b>{$lang["locked"]}</b></label><br>
                 {/if}
 
-                <button type="submit" name="edit" tabindex="7" class="mt-10">{$lang["edit"]}</button>
+                <button type="submit" name="edit" tabindex="8" class="mt-10">{$lang["edit"]}</button>
             </form>
         {elseif $action == "h"}
             <h2>{$lang["history"]}: <a href="/wiki.php?a=t&t={$term["wiki_term"]}">{$term["wiki_term"]}</a></h2>

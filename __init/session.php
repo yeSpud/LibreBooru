@@ -60,6 +60,17 @@ if (isset($_COOKIE["token"]) && !empty($_COOKIE["token"])) {
     }
 }
 
+if (!$logged) {
+    $user["tag_blacklist"] = "";
+    $user["default_rating"] = $config["default_rating"] ?? "safequestionable";
+    if (isset($_COOKIE["tagBlacklist"]) && !empty($_COOKIE["tagBlacklist"])) {
+        $user["tag_blacklist"] = $_COOKIE["tagBlacklist"];
+    }
+    if (isset($_COOKIE["defaultRating"]) && !empty($_COOKIE["defaultRating"])) {
+        $user["default_rating"] = $_COOKIE["defaultRating"];
+    }
+}
+
 $tmpSql = "SELECT * FROM user_levels WHERE level_id = ? LIMIT 1";
 $tmpStmt = $conn->prepare($tmpSql);
 $tmpStmt->bind_param("i", $levelId);

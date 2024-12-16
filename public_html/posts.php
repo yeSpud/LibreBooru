@@ -29,7 +29,7 @@ if ($action == "s" || $action == "i") {
     $offset = ($page - 1) * $perpage;
 
     // Check if there's a tag with rating: in front of it, if so, remove it from the string and set the rating
-    $rating = "all";
+    $rating = $user["default_rating"] ?? ($config["default_rating"] ?? "safequestionable");
     if (strpos($searchTerm, "rating:") !== false) {
         $rating = explode(" ", explode("rating:", $searchTerm)[1])[0];
         $rating = validateRating(strtolower(trim($rating)));
@@ -52,7 +52,38 @@ if ($action == "s" || $action == "i") {
 
     $_tags = explode(" ", $searchTerm);
 
-    $_tags = getTags($conn, $_tags, $config["search_max_tags"]);
+    $userBlacklist = explode(" ", $user["tag_blacklist"] ?? "");
+    $userBlacklist = array_map("trim", $userBlacklist);
+    $userBlacklist = array_filter($userBlacklist);
+    // Add - before each tag in the blacklist
+    $userBlacklist = array_map(function ($tag) {
+        return "-" . $tag;
+    }, $userBlacklist);
+    $blacklistTags = count($userBlacklist);
+    // Merge arrays, but override blacklist with $_tags
+    //$_tags = array_merge($userBlacklist, $_tags);
+
+    // Remove tags from $_tags that are in the blacklist without the minus
+    /*foreach ($_tags as $overwriteBlacklistTag) {
+        $tag = "-" . $overwriteBlacklistTag;
+        if (($key = array_search($tag, $_tags)) !== false) {
+            unset($_tags[$key]);
+        }
+    }*/
+
+    $_tags = array_filter($_tags);
+    $_tags = array_unique($_tags);
+    $tagsWithMinus = [];
+    foreach ($_tags as $key => $tag) {
+        if (str_starts_with($tag, "-")) {
+            $tagsWithMinus[] = $tag;
+            unset($_tags[$key]);
+        }
+    }
+    $_tags = array_merge($_tags, $tagsWithMinus);
+
+    $_tags = getTags($conn, $_tags, $config["search_max_tags"], $userBlacklist);
+
     if (!empty($_tags)) {
         $tags = $_tags[0];
         $count = $_tags[1];
@@ -60,7 +91,7 @@ if ($action == "s" || $action == "i") {
         $tags = [];
         $count = 0;
     }
-    if ($count > $config["search_max_tags"]) {
+    if ($count > ($config["search_max_tags"] + $blacklistTags)) {
         $errors[] = "You can only search for up to " . $config["search_max_tags"] . " tags at a time.";
     }
     if (empty($tags) && ($searchTerm != '' && $searchTerm != '*' && !str_contains($searchTerm, 'rating:') && !str_contains($searchTerm, 'user:') && !str_contains($searchTerm, "status:"))) {
@@ -125,6 +156,18 @@ if ($action == "s" || $action == "i") {
         if ($fileSize > $config["upload_max_size"]) {
             $errors[] = "The file is too large. Maximum size: " . $config["upload_max_size"] . " bytes.";
         }
+        // Make sure the file is a real image or video and not a virus
+        if (in_array($fileExt, ["jpg", "jpeg", "png", "gif"])) {
+            $image = getimagesize($fileTmpName);
+            if (!$image) {
+                $errors[] = "Invalid image file.";
+            }
+        } elseif (in_array($fileExt, ["mp4", "webm", "mkv"])) {
+            $video = getimagesize($fileTmpName);
+            if (!$video) {
+                $errors[] = "Invalid video file.";
+            }
+        }
 
         if (empty($errors)) {
             $fileDestination = __DIR__ . "/uploads/tmp/" . $fileName;
@@ -137,7 +180,7 @@ if ($action == "s" || $action == "i") {
 
             if (empty($errors)) {
                 $md5 = md5_file($fileDestination);
-                if (file_exists(__DIR__ . "/uploads/images/$md5" . "." . $fileExt)) {
+                if (file_exists(__DIR__ . "/uploads/images/$md5" . "." . $fileExt) || file_exists(__DIR__ . "/uploads/videos/$md5" . "." . $fileExt)) {
                     $errors[] = "File already exists.";
                     unlink($fileDestination);
                 }
@@ -200,6 +243,27 @@ if ($action == "s" || $action == "i") {
                         if ($returnVar !== 0) {
                             $errors[] = "Failed to create video thumbnail. Command output: " . implode("<br>", $output);
                         }
+
+                        // Now resize the thumbnail
+                        $thumbnailImage = imagecreatefromstring(file_get_contents($thumbnailDestination));
+                        $thumbnailWidth = imagesx($thumbnailImage);
+                        $thumbnailHeight = imagesy($thumbnailImage);
+                        $thumbnailAspectRatio = $thumbnailWidth / $thumbnailHeight;
+
+                        if ($thumbnailWidth > $config["thumbnail_width"] || $thumbnailHeight > $config["thumbnail_height"]) {
+                            if ($thumbnailHeight > $config["thumbnail_height"]) {
+                                $newHeight = $config["thumbnail_height"];
+                                $newWidth = $newHeight * $thumbnailAspectRatio;
+                            }
+                            if ($thumbnailWidth > $config["thumbnail_width"]) {
+                                $newWidth = $config["thumbnail_width"];
+                                $newHeight = $newWidth / $thumbnailAspectRatio;
+                            }
+                            $newImage = imagecreatetruecolor((int)$newWidth, (int)$newHeight);
+                            imagecopyresampled($newImage, $thumbnailImage, 0, 0, 0, 0, (int)$newWidth, (int)$newHeight, $thumbnailWidth, $thumbnailHeight);
+                            imagejpeg($newImage, $thumbnailDestination, 100);
+                        }
+
                         $type = "videos";
                     }
 
@@ -519,6 +583,114 @@ if ($action == "s" || $action == "i") {
             $smarty->assign("report", $report);
             $smarty->assign("reporter", $reporter);
         }
+    }
+
+    $commentsPage = 1;
+    if (isset($_GET["p"]) && !empty($_GET["p"]) && is_numeric($_GET["p"]) && $_GET["p"] > 0) {
+        $commentsPage = intval($_GET["p"]);
+    }
+    $commentsPerPage = $config["post_display_limit"];
+    $commentsOffset = ($commentsPage - 1) * $commentsPerPage;
+
+    if (in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+        $commentsSql = "SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.post_id = ? ORDER BY c.timestamp ASC LIMIT ?, ?";
+    } else {
+        $commentsSql = "SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.post_id = ? AND c.deleted = 0 ORDER BY c.timestamp ASC LIMIT ?, ?";
+    }
+    $commentsStmt = $conn->prepare($commentsSql);
+    $commentsStmt->bind_param("iii", $id, $commentsOffset, $commentsPerPage);
+    $commentsStmt->execute();
+    $commentsResult = $commentsStmt->get_result();
+
+    $comments = [];
+    while ($comment = $commentsResult->fetch_assoc()) {
+        $commentScoreSql = "SELECT SUM(vote) AS score FROM comment_votes WHERE comment_id = ?";
+        $commentScoreStmt = $conn->prepare($commentScoreSql);
+        $commentScoreStmt->bind_param("i", $comment["comment_id"]);
+        $commentScoreStmt->execute();
+        $commentScoreResult = $commentScoreStmt->get_result();
+        $comment["score"] = $commentScoreResult->fetch_assoc()["score"];
+        if (empty($comment["score"])) {
+            $comment["score"] = 0;
+        }
+
+        $commentReportedStatus = "none";
+        $commentReportedSql = "SELECT report_id, status FROM comment_reports WHERE comment_id = ? LIMIT 1";
+        $commentReportedStmt = $conn->prepare($commentReportedSql);
+        $commentReportedStmt->bind_param("i", $comment["comment_id"]);
+        $commentReportedStmt->execute();
+        $commentReportedResult = $commentReportedStmt->get_result();
+        if ($commentReportedResult->num_rows > 0) {
+            $commentReportedStatus = $commentReportedResult->fetch_assoc()["status"];
+        }
+        $comment["reportedStatus"] = $commentReportedStatus;
+
+        $comments[] = $comment;
+    }
+
+    $commentsTotalSql = "SELECT COUNT(*) AS count FROM comments WHERE post_id = ?";
+    $commentsTotalStmt = $conn->prepare($commentsTotalSql);
+    $commentsTotalStmt->bind_param("i", $id);
+    $commentsTotalStmt->execute();
+    $commentsTotalResult = $commentsTotalStmt->get_result();
+    $commentsTotal = $commentsTotalResult->fetch_assoc()["count"];
+
+    $commentsTotalPages = ceil($commentsTotal / $commentsPerPage);
+
+    $smarty->assign("comments", $comments);
+    $smarty->assign("commentsPage", $commentsPage);
+    $smarty->assign("commentsTotal", $commentsTotal);
+    $smarty->assign("commentsTotalPages", $commentsTotalPages);
+
+    // wiki entries for artists
+    $links = [];
+    if (!empty($allTags["artist"])) {
+        foreach ($allTags["artist"] as $tmpArtist) {
+            $wikiSql = "SELECT * FROM wiki WHERE wiki_term = ? LIMIT 1";
+            $wikiStmt = $conn->prepare($wikiSql);
+            $wikiStmt->bind_param("s", $tmpArtist["name"]);
+            $wikiStmt->execute();
+            $wikiResult = $wikiStmt->get_result();
+            if ($wikiResult->num_rows > 0) {
+                $wiki = $wikiResult->fetch_assoc();
+                if (!empty($wiki["pixiv_id"])) {
+                    $links[] = ["type" => "pixiv", "name" => $tmpArtist["name"], "handle" => $wiki["pixiv_id"]];
+                }
+                if (!empty($wiki["patreon"])) {
+                    $links[] = ["type" => "patreon", "name" => $tmpArtist["name"], "handle" => $wiki["patreon"]];
+                }
+                if (!empty($wiki["twitter_id"])) {
+                    $links[] = ["type" => "twitter", "name" => $tmpArtist["name"], "handle" => $wiki["twitter_id"]];
+                }
+                if (!empty($wiki["fanbox_id"])) {
+                    $links[] = ["type" => "fanbox", "name" => $tmpArtist["name"], "handle" => $wiki["fanbox_id"]];
+                }
+                if (!empty($wiki["kofi"])) {
+                    $links[] = ["type" => "kofi", "name" => $tmpArtist["name"], "handle" => $wiki["kofi"]];
+                }
+            }
+        }
+    }
+
+    $smarty->assign("links", $links);
+
+    if (isset($_POST["comment"])) {
+        if (!in_array("comment", $permissions) && !in_array("moderate", $permissions) && !in_array("admin", $permissions)) {
+            $_GET["t"] = $_GET["t"] ?? "";
+            header("Location: /posts.php?a=p&id=$id&t={$_GET["t"]}");
+            exit;
+        }
+
+        $content = sanitize($_POST["content"]);
+
+        $commentSql = "INSERT INTO comments (post_id, user_id, content, last_edited) VALUES (?, ?, ?, NULL)";
+        $commentStmt = $conn->prepare($commentSql);
+        $commentStmt->bind_param("iis", $id, $user["user_id"], $content);
+        $commentStmt->execute();
+        $commentStmt->close();
+
+        header("Location: /posts.php?a=p&id=$id&t={$_GET["t"]}");
+        exit;
     }
 
     if (isset($_POST["update"])) {

@@ -20,8 +20,10 @@ updates on the current devel build!
 1. Live Demo
 2. Donations
 3. Installation
-4. Credits
-5. Fun Facts
+4. Translating
+5. Uodating
+6. Credits
+7. Fun Facts
 
 /–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
 | 1. LIVE EDEMO                                         |
@@ -104,7 +106,24 @@ location ~* \.(jpg|jpeg|png|gif|bmp|tiff)$ {
 }
 
 /–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
-| 4. CREDITS                                            |
+| 4. TRANSLATING                                        |
+\–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
+
+Help out translating OpenBooru in your language at 5ynchro's Weblate: https://translate.5ynchro.net
+
+/–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
+| 5. UPDATING                                           |
+\–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
+
+You can most always use the inbuild Update System in the Admin Area. However,
+ALWAYS make a backup of your data and database before doing so! You never know what may go wrong.
+
+Also, please make sure to check out OpenBooru-Extras README.md:
+https://github.com/5ynchrogazer/OpenBooru-Extras/blob/master/README.md
+for further instructions and how-to's when upgrading.
+
+/–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
+| 6. CREDITS                                            |
 \–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 As of now, everything (exceptions listed below) has been written by @5ynchrogazer.
@@ -112,11 +131,12 @@ As of now, everything (exceptions listed below) has been written by @5ynchrogaze
 OpenBooru makes use of following libraries:
 - Smarty template engine (https://github.com/smarty-php/smarty)
 - Parsedown (https://github.com/erusev/parsedown)
-- jQuery
-- FFmpeg
+- Userbar Generator (ttps://github.com/v1rx/userbar-generator)
+- jQuery (https://jquery.com)
+- FFmpeg (https://ffmpeg.org)
 
 /–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
-| 5. FUN FACTS                                          |
+| 7. FUN FACTS                                          |
 \–––––––––––––––––––––––––––––––––––––––––––––––––––––––/
 
 ... Every part of OpenBooru was created entirely on my ThinkPad T430 while
@@ -129,3 +149,4 @@ OpenBooru makes use of following libraries:
 ... Sometimes when tagging a post, it throws an error ranting about duplicate
     entries... no idea what I'm supposed to do here now
 ... The Footer message has been inspired from Shish's Shimmie2 ;)
+... All images were edited in GIMP

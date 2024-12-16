@@ -9,9 +9,10 @@ Come hang out on [Discord](https://discord.5ynchro.net)! I'll be there if you ha
 1. [Live Demo](#live-demo)
 2. [Donations](#donations)
 3. [Installation](#installation)
-4. [Updating](#updating)
-5. [Credits](#credits)
-6. [Fun Facts](#fun-facts)
+4. [Translating](#translating)
+5. [Updating](#updating)
+6. [Credits](#credits)
+7. [Fun Facts](#fun-facts)
 
 ## Live Demo
 
@@ -83,6 +84,12 @@ location ~* \.(jpg|jpeg|png|gif|bmp|tiff)$ {
 }
 ```
 
+## Translating
+
+Help out translating OpenBooru in your language at [5ynchro's Weblate](https://translate.5ynchro.net)!
+
+[![Translation status](https://translate.5ynchro.net/widget/openbooru/website/multi-auto.svg)](http://translate.5ynchro.net/engage/openbooru/)
+
 ## Updating
 
 You can most always use the inbuild Update System in the Admin Area. However, **ALWAYS** make a backup of your data and database before doing so! You never know what may go wrong.
@@ -97,8 +104,9 @@ OpenBooru makes use of the following libraries:
 
 - [Smarty template engine](https://github.com/smarty-php/smarty)
 - [Parsedown](https://github.com/erusev/parsedown)
-- jQuery
-- FFmpeg
+- [Userbar Generator](https://github.com/v1rx/userbar-generator)
+- [jQuery](https://jquery.com)
+- [FFmpeg](https://ffmpeg.org)
 
 ## Fun Facts
 
@@ -107,3 +115,4 @@ OpenBooru makes use of the following libraries:
 - Allowing guests to upload/edit posts or make changes to the wiki will result in the system breaking as it's not intended for users with no ID to do anything at all, but I may fix this in the future... maybe
 - Sometimes when tagging a post, it throws an error ranting about duplicate entries... no idea what I'm supposed to do here now
 - The Footer message has been inspired from Shish's Shimmie2 ;)
+- All images were edited in GIMP
