@@ -9,9 +9,10 @@ Come hang out on [Discord](https://discord.5ynchro.net)! I'll be there if you ha
 1. [Live Demo](#live-demo)
 2. [Donations](#donations)
 3. [Installation](#installation)
-4. [Updating](#updating)
-5. [Credits](#credits)
-6. [Fun Facts](#fun-facts)
+4. [Translating](#translating)
+5. [Updating](#updating)
+6. [Credits](#credits)
+7. [Fun Facts](#fun-facts)
 
 ## Live Demo
 
@@ -82,6 +83,12 @@ location ~* \.(jpg|jpeg|png|gif|bmp|tiff)$ {
     add_header X-Robots-Tag "noindex, nofollow";
 }
 ```
+
+## Translating
+
+Help out translating OpenBooru in your language at [5ynchro's Weblate](https://translate.5ynchro.net)!
+
+[![Translation status](https://translate.5ynchro.net/widget/openbooru/website/multi-auto.svg)](http://translate.5ynchro.net/engage/openbooru/)
 
 ## Updating
 
