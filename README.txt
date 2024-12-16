@@ -112,8 +112,9 @@ As of now, everything (exceptions listed below) has been written by @5ynchrogaze
 OpenBooru makes use of following libraries:
 - Smarty template engine (https://github.com/smarty-php/smarty)
 - Parsedown (https://github.com/erusev/parsedown)
-- jQuery
-- FFmpeg
+- Userbar Generator (ttps://github.com/v1rx/userbar-generator)
+- jQuery (https://jquery.com)
+- FFmpeg (https://ffmpeg.org)
 
 /–––––––––––––––––––––––––––––––––––––––––––––––––––––––\
 | 5. FUN FACTS                                          |
@@ -129,3 +130,4 @@ OpenBooru makes use of following libraries:
 ... Sometimes when tagging a post, it throws an error ranting about duplicate
     entries... no idea what I'm supposed to do here now
 ... The Footer message has been inspired from Shish's Shimmie2 ;)
+... All images were edited in GIMP

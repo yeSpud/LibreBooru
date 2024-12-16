@@ -601,6 +601,38 @@ if ($action == "s" || $action == "i") {
     $smarty->assign("commentsTotal", $commentsTotal);
     $smarty->assign("commentsTotalPages", $commentsTotalPages);
 
+    // wiki entries for artists
+    $links = [];
+    if (!empty($allTags["artist"])) {
+        foreach ($allTags["artist"] as $tmpArtist) {
+            $wikiSql = "SELECT * FROM wiki WHERE wiki_term = ? LIMIT 1";
+            $wikiStmt = $conn->prepare($wikiSql);
+            $wikiStmt->bind_param("s", $tmpArtist["name"]);
+            $wikiStmt->execute();
+            $wikiResult = $wikiStmt->get_result();
+            if ($wikiResult->num_rows > 0) {
+                $wiki = $wikiResult->fetch_assoc();
+                if (!empty($wiki["pixiv_id"])) {
+                    $links[] = ["type" => "pixiv", "name" => $tmpArtist["name"], "handle" => $wiki["pixiv_id"]];
+                }
+                if (!empty($wiki["patreon"])) {
+                    $links[] = ["type" => "patreon", "name" => $tmpArtist["name"], "handle" => $wiki["patreon"]];
+                }
+                if (!empty($wiki["twitter_id"])) {
+                    $links[] = ["type" => "twitter", "name" => $tmpArtist["name"], "handle" => $wiki["twitter_id"]];
+                }
+                if (!empty($wiki["fanbox_id"])) {
+                    $links[] = ["type" => "fanbox", "name" => $tmpArtist["name"], "handle" => $wiki["fanbox_id"]];
+                }
+                if (!empty($wiki["kofi"])) {
+                    $links[] = ["type" => "kofi", "name" => $tmpArtist["name"], "handle" => $wiki["kofi"]];
+                }
+            }
+        }
+    }
+
+    $smarty->assign("links", $links);
+
     if (isset($_POST["comment"])) {
         if (!in_array("comment", $permissions) && !in_array("moderate", $permissions) && !in_array("admin", $permissions)) {
             $_GET["t"] = $_GET["t"] ?? "";

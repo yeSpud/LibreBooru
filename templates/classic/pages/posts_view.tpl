@@ -30,6 +30,14 @@
             </div>
         {/if}
     {/if}
+    {if !empty($links)}
+        <div style="margin-bottom: 6px;">
+            {foreach from=$links item=sLink key=sKey name=sName}
+                <a href="https://{if $sLink["type"] == "fanbox"}{$sLink["handle"]}.fanbox.cc{else}{if $sLink["type"] == "kofi"}ko-fi{else}{$sLink["type"]}{/if}.{if $sLink["type"] == "pixiv"}net/u{else}com{/if}/{$sLink["handle"]}{/if}"
+                    target="_blank"><img src="/api/userbar.php?t={$sLink["type"]}&h={$sLink["handle"]}"></a>
+            {/foreach}
+        </div>
+    {/if}
 
     {if isset($post["is_video"])}
         <video controls loop id="post_video">
