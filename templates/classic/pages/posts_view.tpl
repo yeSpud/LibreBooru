@@ -77,6 +77,57 @@
             </form>
         </div>
     {/if}
+
+    {if $canComment}
+        <div id="comment-div" style="display:none" class="mt-10">
+            <form method="POST" name="comment">
+                <textarea name="content" required cols="60" rows="3" tabindex="1"></textarea><br>
+
+                <button type="submit" name="comment" tabindex="2" class="mt-10">{$lang["comment"]}</button>
+            </form>
+        </div>
+    {/if}
+
+    {if !empty($comments)}
+        <p class="m-0 p-0 mb-10">{$commentsTotal} {$lang["comments"]}</p>
+        {foreach from=$comments item=item key=key name=name}
+            <p class="m-0 p-0" id="{$item["comment_id"]}" {if $item["deleted"]}style="color:red" {/if}>
+                <b>
+                    <a href="/account.php?a=p&id={$item["user_id"]}" target="_blank">{$item["username"]}</a>
+                    <a href="#{$item["comment_id"]}"><span style="color:grey;">#{$item["comment_id"]}</span></a>
+                    {replace s=$lang["at_timestamp"] n="[timestamp]" r=$item["timestamp"]} |
+                    {$lang["score"]}: <span id="commentScore{$item["comment_id"]}">{$item["score"]}</span>
+                    (<a href="javascript:voteComment('{$item["comment_id"]}', 'up');">{$lang["up"]|lower}</a> /
+                    <a href="javascript:voteComment('{$item["comment_id"]}', 'down');">{$lang["down"]|lower}</a> /
+                    <a href="javascript:voteComment('{$item["comment_id"]}', 'remove');">{$lang["remove"]|lower}</a>)
+                    {if in_array("report", $permissions)}
+                        |
+                        {if $item["reportedStatus"] == "none"}
+                            <a href="javascript:reportComment('{$item["comment_id"]}')">{$lang["report_to_moderation"]}</a>
+                        {elseif $item["reportedStatus"] == "reported"}
+                            {$lang["flagged_for_deletion"]}
+                        {elseif $item["reportedStatus"] == "approved" && (in_array("moderate", $permissions) || in_array("admin", $permissions))}
+                            <a href="/admin.php?a=r&t=c&s=all&f={$item["comment_id"]}">{$lang["view_report"]}</a>
+                        {else}
+                            {$lang["report_was_denied"]}
+                        {/if}
+                    {else}
+                        {$lang["no_permission_to_report"]}
+                    {/if}
+                    {* Do I really need this? Idk... I'm too lazy :P ~5ynchro *}
+                    {* {if isset($user["user_id"]) && $user["user_id"] == $item["user_id"] || in_array("moderate", $permissions) || in_array("admin", $permissions)}
+                        |
+                        <a href="javascript:editComment('{$item["comment_id"]}')">{$lang["edit"]}</a> /
+                        <a href="javascript:deleteComment('{$item["comment_id"]}')">{$lang["delete"]}</a>
+                    {/if} *}
+                </b>
+            </p>
+            {$item["content"]}
+            {if !$smarty.foreach.name.last}
+                <hr>
+            {/if}
+        {/foreach}
+    {/if}
 {else}
     <div class="error" id="original-message">
         {replace s=$lang["this_post_has_been_deleted_reason"] n="[reason]" r=$post["deleted_message"]}.

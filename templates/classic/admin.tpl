@@ -45,6 +45,14 @@
                 <a href="/admin.php?a=r&t=p">{$lang["posts"]}</a> -
                 {$lang["comments"]}
             </p>
+            <hr>
+            <p class="m-0 p-0">
+                {if $status == "all"}{$lang["all"]}{else}<a href="/admin.php?a=r&t=c&s=all">{$lang["all"]}</a>{/if} -
+                {if $status == "reported"}{$lang["reported"]}{else}<a href="/admin.php?a=r&t=c">{$lang["reported"]}</a>{/if} -
+                {if $status == "approved"}{$lang["approved"]}{else}<a href="/admin.php?a=r&t=c&s=a">{$lang["approved"]}</a>{/if}
+                -
+                {if $status == "rejected"}{$lang["rejected"]}{else}<a href="/admin.php?a=r&t=c&s=r">{$lang["rejected"]}</a>{/if}
+            </p>
         {/if}
 
         {if $reportsType == "p"}
@@ -77,7 +85,36 @@
                 {/foreach}
             </table>
         {else}
-            Comments
+            <table class="history_table mt-10">
+                <tr>
+                    <th>{$lang["user"]}</th>
+                    <th>{$lang["author"]}</th>
+                    <th style="width: 30%;">{$lang["comment"]}</th>
+                    <th style="width: 30%;">{$lang["reason"]}</th>
+                    <th>{$lang["action"]}</th>
+                    <th>{$lang["status"]}</th>
+                    <th style="text-align: right; width: 15%">{$lang["timestamp"]}</th>
+                </tr>
+                {foreach $reports as $entry}
+                    <tr id="report-{$entry["report_id"]}">
+                        <td><a href="/account.php?a=p&id={$entry["user_id"]}" target="_blank">{$entry["username"]}</a></td>
+                        <td><a href="/account.php?a=p&id={$entry["author_id"]}" target="_blank">{$entry["author"]}</a></td>
+                        <td>{$entry["comment"]}</td>
+                        <td>{$entry["reason"]}</td>
+                        <td>
+                            {if $entry["status"] !== "approved"}<a
+                                href="javascript:approveReport('{$entry["report_id"]}', '{$entry["comment_id"]}', 'comment')">{$lang["approve"]}</a>{else}{$lang["approve"]}
+                            {/if}
+                            -
+                            {if $entry["status"] !== "rejected"}<a
+                                href="javascript:rejectReport('{$entry["report_id"]}', 'comment')">{$lang["reject"]}</a>{else}{$lang["reject"]}
+                            {/if}
+                        </td>
+                        <td>{$entry["status"]|capitalize}</td>
+                        <td style="text-align: right;">{$entry["timestamp"]}</td>
+                    </tr>
+                {/foreach}
+            </table>
         {/if}
 
         <div class="pagination">

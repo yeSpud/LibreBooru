@@ -400,6 +400,37 @@ if ($action == "l") {
 
     $smarty->assign("tab", $tab);
     $smarty->assign("profile", $profile);
+} elseif ($action == "o") {
+    if (isset($_POST["save_options"])) {
+        $blacklist = trim($_POST["tag_blacklist"] ?? "");
+        $ratings = ["all", "safe", "safequestionable", "safeexplicit", "questionable", "questionableexplicit", "explicit"];
+        $rating = isset($_POST["default_rating"]) && in_array($_POST["default_rating"], $ratings) ? $_POST["default_rating"] : ($config["default_rating"] ?? "safequestionable");
+
+        if ($logged) {
+            $sql = "UPDATE users SET tag_blacklist = ?, default_rating = ? WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssi", $blacklist, $rating, $user["user_id"]);
+            $stmt->execute();
+        } else {
+            setcookie("tagBlacklist", $blacklist, strtotime("+999 years"), "/", "", false, true);
+            setcookie("defaultRating", $rating, strtotime("+999 years"), "/", "", false, true);
+        }
+
+        if (isset($_POST["show_message"])) {
+            setcookie("hideOriginalMessage", "", time() - 3600, "/", "", false, true);
+        } else {
+            setcookie("hideOriginalMessage", "true", strtotime("+999 years"), "/", "", false, true);
+        }
+
+        if (isset($_POST["always_show_original"])) {
+            setcookie("showOriginal", "true", strtotime("+999 years"), "/", "", false, true);
+        } else {
+            setcookie("showOriginal", "", time() - 3600, "/", "", false, true);
+        }
+
+        header("Location: /account.php?a=o");
+        exit;
+    }
 }
 
 if (!empty($errors)) {

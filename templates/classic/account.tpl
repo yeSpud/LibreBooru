@@ -29,9 +29,7 @@
             {/if}
         {/if}
     {elseif $action == "o"}
-        {if $logged}
-            {include file="pages/account_options.tpl"}
-        {/if}
+        {include file="pages/account_options.tpl"}
     {elseif $action == "p"}
         {include file="pages/account_profile.tpl"}
     {/if}

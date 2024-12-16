@@ -29,7 +29,7 @@ if ($action == "s" || $action == "i") {
     $offset = ($page - 1) * $perpage;
 
     // Check if there's a tag with rating: in front of it, if so, remove it from the string and set the rating
-    $rating = "all";
+    $rating = $user["default_rating"] ?? ($config["default_rating"] ?? "safequestionable");
     if (strpos($searchTerm, "rating:") !== false) {
         $rating = explode(" ", explode("rating:", $searchTerm)[1])[0];
         $rating = validateRating(strtolower(trim($rating)));
@@ -52,7 +52,30 @@ if ($action == "s" || $action == "i") {
 
     $_tags = explode(" ", $searchTerm);
 
-    $_tags = getTags($conn, $_tags, $config["search_max_tags"]);
+    $userBlacklist = explode(" ", $user["tag_blacklist"]);
+    $userBlacklist = array_map("trim", $userBlacklist);
+    $userBlacklist = array_filter($userBlacklist);
+    // Add - before each tag in the blacklist
+    $userBlacklist = array_map(function ($tag) {
+        return "-" . $tag;
+    }, $userBlacklist);
+    $blacklistTags = count($userBlacklist);
+    // Merge arrays, but override blacklist with $_tags
+    //$_tags = array_merge($userBlacklist, $_tags);
+
+    // Remove tags from $_tags that are in the blacklist without the minus
+    /*foreach ($_tags as $overwriteBlacklistTag) {
+        $tag = "-" . $overwriteBlacklistTag;
+        if (($key = array_search($tag, $_tags)) !== false) {
+            unset($_tags[$key]);
+        }
+    }*/
+
+    $_tags = array_filter($_tags);
+    $_tags = array_unique($_tags);
+
+    $_tags = getTags($conn, $_tags, $config["search_max_tags"], $userBlacklist);
+
     if (!empty($_tags)) {
         $tags = $_tags[0];
         $count = $_tags[1];
@@ -60,7 +83,7 @@ if ($action == "s" || $action == "i") {
         $tags = [];
         $count = 0;
     }
-    if ($count > $config["search_max_tags"]) {
+    if ($count > ($config["search_max_tags"] + $blacklistTags)) {
         $errors[] = "You can only search for up to " . $config["search_max_tags"] . " tags at a time.";
     }
     if (empty($tags) && ($searchTerm != '' && $searchTerm != '*' && !str_contains($searchTerm, 'rating:') && !str_contains($searchTerm, 'user:') && !str_contains($searchTerm, "status:"))) {
@@ -519,6 +542,82 @@ if ($action == "s" || $action == "i") {
             $smarty->assign("report", $report);
             $smarty->assign("reporter", $reporter);
         }
+    }
+
+    $commentsPage = 1;
+    if (isset($_GET["p"]) && !empty($_GET["p"]) && is_numeric($_GET["p"]) && $_GET["p"] > 0) {
+        $commentsPage = intval($_GET["p"]);
+    }
+    $commentsPerPage = $config["post_display_limit"];
+    $commentsOffset = ($commentsPage - 1) * $commentsPerPage;
+
+    if (in_array("moderate", $permissions) || in_array("admin", $permissions)) {
+        $commentsSql = "SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.post_id = ? ORDER BY c.timestamp ASC LIMIT ?, ?";
+    } else {
+        $commentsSql = "SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.post_id = ? AND c.deleted = 0 ORDER BY c.timestamp ASC LIMIT ?, ?";
+    }
+    $commentsStmt = $conn->prepare($commentsSql);
+    $commentsStmt->bind_param("iii", $id, $commentsOffset, $commentsPerPage);
+    $commentsStmt->execute();
+    $commentsResult = $commentsStmt->get_result();
+
+    $comments = [];
+    while ($comment = $commentsResult->fetch_assoc()) {
+        $commentScoreSql = "SELECT SUM(vote) AS score FROM comment_votes WHERE comment_id = ?";
+        $commentScoreStmt = $conn->prepare($commentScoreSql);
+        $commentScoreStmt->bind_param("i", $comment["comment_id"]);
+        $commentScoreStmt->execute();
+        $commentScoreResult = $commentScoreStmt->get_result();
+        $comment["score"] = $commentScoreResult->fetch_assoc()["score"];
+        if (empty($comment["score"])) {
+            $comment["score"] = 0;
+        }
+
+        $commentReportedStatus = "none";
+        $commentReportedSql = "SELECT report_id, status FROM comment_reports WHERE comment_id = ? LIMIT 1";
+        $commentReportedStmt = $conn->prepare($commentReportedSql);
+        $commentReportedStmt->bind_param("i", $comment["comment_id"]);
+        $commentReportedStmt->execute();
+        $commentReportedResult = $commentReportedStmt->get_result();
+        if ($commentReportedResult->num_rows > 0) {
+            $commentReportedStatus = $commentReportedResult->fetch_assoc()["status"];
+        }
+        $comment["reportedStatus"] = $commentReportedStatus;
+
+        $comments[] = $comment;
+    }
+
+    $commentsTotalSql = "SELECT COUNT(*) AS count FROM comments WHERE post_id = ?";
+    $commentsTotalStmt = $conn->prepare($commentsTotalSql);
+    $commentsTotalStmt->bind_param("i", $id);
+    $commentsTotalStmt->execute();
+    $commentsTotalResult = $commentsTotalStmt->get_result();
+    $commentsTotal = $commentsTotalResult->fetch_assoc()["count"];
+
+    $commentsTotalPages = ceil($commentsTotal / $commentsPerPage);
+
+    $smarty->assign("comments", $comments);
+    $smarty->assign("commentsPage", $commentsPage);
+    $smarty->assign("commentsTotal", $commentsTotal);
+    $smarty->assign("commentsTotalPages", $commentsTotalPages);
+
+    if (isset($_POST["comment"])) {
+        if (!in_array("comment", $permissions) && !in_array("moderate", $permissions) && !in_array("admin", $permissions)) {
+            $_GET["t"] = $_GET["t"] ?? "";
+            header("Location: /posts.php?a=p&id=$id&t={$_GET["t"]}");
+            exit;
+        }
+
+        $content = sanitize($_POST["content"]);
+
+        $commentSql = "INSERT INTO comments (post_id, user_id, content, last_edited) VALUES (?, ?, ?, NULL)";
+        $commentStmt = $conn->prepare($commentSql);
+        $commentStmt->bind_param("iis", $id, $user["user_id"], $content);
+        $commentStmt->execute();
+        $commentStmt->close();
+
+        header("Location: /posts.php?a=p&id=$id&t={$_GET["t"]}");
+        exit;
     }
 
     if (isset($_POST["update"])) {
