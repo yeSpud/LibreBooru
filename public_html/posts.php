@@ -127,6 +127,22 @@ if ($action == "s" || $action == "i") {
     $smarty->assign("max_size", formatBytes($config["upload_max_size"]));
 
     if (isset($_POST["upload"])) {
+        if (!file_exists(__DIR__ . "/uploads")) {
+            mkdir(__DIR__ . "/uploads", 0775, true);
+        }
+        if (!file_exists(__DIR__ . "/uploads/images")) {
+            mkdir(__DIR__ . "/uploads/images", 0775, true);
+        }
+        if (!file_exists(__DIR__ . "/uploads/thumbs")) {
+            mkdir(__DIR__ . "/uploads/thumbs", 0775, true);
+        }
+        if (!file_exists(__DIR__ . "/uploads/crops")) {
+            mkdir(__DIR__ . "/uploads/crops", 0775, true);
+        }
+        if (!file_exists(__DIR__ . "/uploads/videos")) {
+            mkdir(__DIR__ . "/uploads/videos", 0775, true);
+        }
+        
         $source = $_POST["source"];
         $tags = $_POST["tags"];
         $file = $_FILES["file"];
