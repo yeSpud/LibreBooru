@@ -12,7 +12,7 @@ require __DIR__ . "/../__init/language.php";
 
 if (file_exists(__DIR__ . "/../version")) {
     writeStep(0);
-    echo "OpenBooru is already installed. Use the update system to update.<br><i>It's recommended to delete the install.php file after installation, but that's completely up to you.</i>";
+    echo "LibreBooru is already installed. Use the update system to update.<br><i>It's recommended to delete the install.php file after installation, but that's completely up to you.</i>";
     header("refresh:2;url=/account.php?a=l");
     exit;
 }
@@ -77,7 +77,7 @@ if (isset($_POST["fill_db"])) {
     }
     $dbFile = __DIR__ . "/../__init/.tmp/$version.sql";
     if (!file_exists($dbFile)) {
-        $dbUrl = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/sql/$version.sql";
+        $dbUrl = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/sql/$version.sql";
         $dbContent = file_get_contents($dbUrl);
         file_put_contents($dbFile, $dbContent);
     }
@@ -172,7 +172,7 @@ if ($step == 0) {
 
 <head>
     <meta charset="utf-8">
-    <title>OpenBooru Installer - <?= $lang["step"] ?> <?= $step ?></title>
+    <title>LibreBooru Installer - <?= $lang["step"] ?> <?= $step ?></title>
     <link rel="stylesheet" href="/assets/classic/main.css">
     <link rel="stylesheet" href="/assets/classic/install.css">
 
@@ -197,9 +197,9 @@ if ($step == 0) {
 <body>
     <div class="container">
         <div class="home_container">
-            <h1><a href="javascript:void">OpenBooru</a></h1>
+            <h1><a href="javascript:void">LibreBooru</a></h1>
             <div class="home_menu">
-                <a href="https://github.com/5ynchrogazer/OpenBooru" target="_blank">GitHub</a>
+                <a href="https://github.com/5ynchrogazer/LibreBooru" target="_blank">GitHub</a>
                 <a href="https://discord.5ynchro.net" target="_blank"><?= $lang["support"] ?></a>
                 <span>
                     <a href="javascript:void" id="localeSelector"><?= $lang["language"] ?></a>
@@ -228,7 +228,7 @@ if ($step == 0) {
                         <div class="split">
                             <label class="element">
                                 Site Name
-                                <input type="text" name="sitename" value="OpenBooru" required>
+                                <input type="text" name="sitename" value="LibreBooru" required>
                             </label>
                             <label class="element">
                                 Default Language
@@ -474,7 +474,7 @@ if ($step == 0) {
                             </label>
                             <label class="element">
                                 Database Name
-                                <input type="text" name="name" value="openbooru" required>
+                                <input type="text" name="name" value="librebooru" required>
                             </label>
                         </div>
                         <div class="split">
@@ -516,13 +516,13 @@ if ($step == 0) {
 
             <?php if ($step == 5) { ?>
                 <div class="panel">
-                    <h3 class="m-0 p-0"><?= $lang["thanks_for_installing_openbooru"] ?></h3>
+                    <h3 class="m-0 p-0"><?= $lang["thanks_for_installing_librebooru"] ?></h3>
                     <form method="POST" name="finish" id="finish">
                         <input type="hidden" name="finish" value="true">
                         <?= $lang["installation_complete"] ?><br><br>
-                        If you think OpenBooru is worth a cup of coffee, please consider donating on <a href="https://ko-fi.com/aetherwellen" target="_blank">Ko-fi</a> or <a href="https://github.com/5ynchrogazer/OpenBooru" target="_blank">star the repository</a>, it really helps me out a lot!<br><br>
+                        If you think LibreBooru is worth a cup of coffee, please consider donating on <a href="https://ko-fi.com/aetherwellen" target="_blank">Ko-fi</a> or <a href="https://github.com/5ynchrogazer/LibreBooru" target="_blank">star the repository</a>, it really helps me out a lot!<br><br>
                         Also, if you ever find bugs, have suggestions, need support or simply want to hang out with me, <a href="https://discord.5ynchro.net" target="_blank">join the Discord server</a>!<br><br>
-                        To lock the installer and start using OpenBooru, click the button below.<br>
+                        To lock the installer and start using LibreBooru, click the button below.<br>
                     </form>
                 </div>
             <?php } ?>
@@ -533,7 +533,7 @@ if ($step == 0) {
                     <button onclick="javascript:submitForms();" class="element" <?php if ($error || ($step + 1 >= count($steps))) echo "disabled" ?>><?= $lang["next"] ?></button>
                 </div>
                 <p class="m-0 p-0 mt-5">
-                    <?= replace($lang["installing_openbooru_version"], "[version]", "v$version") ?> -
+                    <?= replace($lang["installing_librebooru_version"], "[version]", "v$version") ?> -
                     <?= replace($lang["step_x_of_y"], ["[current]", "[total]"], [$step, count($steps) - 1]) ?>
                 </p>
             </div>

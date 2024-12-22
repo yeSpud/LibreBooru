@@ -6,7 +6,7 @@ if (!defined('WORLD')) {
 
 $tmpDir = __DIR__ . "/.tmp";
 $timestampFilePattern = $tmpDir . "/languages.json.*";
-$languagesJsonURL = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/locales.json";
+$languagesJsonURL = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/locales.json";
 $defaultLocaleFile = __DIR__ . "/../locales/en.json";
 $languageFileString = __DIR__ . "/../locales/[lang].json";
 $cacheDuration = 14400; // 4 hours

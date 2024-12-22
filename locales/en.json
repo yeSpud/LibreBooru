@@ -1,7 +1,7 @@
 {
   "search": "Search",
   "serving_x_posts_so_far": "Serving [count] posts so far!",
-  "openbooru_rocks_it": "[OpenBooru] rocks it!",
+  "librebooru_rocks_it": "[LibreBooru] rocks it!",
   "tip": "Tip",
   "for_the_best_experience_enable_javascript": "For the best experience, enable JavaScript.",
   "enable_javascript_to_enhance_your_search": "Enable JavaScript to enhance your search!",
@@ -190,7 +190,7 @@
   "update": "Update",
   "welcome_to_the_admin_panel": "Welcome to the Admin Panel, [username].",
   "update_system": "Update System",
-  "update_system_phrase": "Update your OpenBooru and keep it fresh forever (unlike those 3D women)!",
+  "update_system_phrase": "Update your LibreBooru and keep it fresh forever (unlike those 3D women)!",
   "approval_queue": "Approval Queue",
   "approval_queue_phrase": "Check, approve or delete posts that are awaiting approval.",
   "reports": "Reports",
@@ -266,7 +266,7 @@
   "comment_already_deleted": "Comment already deleted",
   "view_report": "View Report",
 
-  "footer_phrase": "Running [OpenBooru] [version] - Developed by [Aether] & [other_contributors].",
+  "footer_phrase": "Running [LibreBooru] [version] - Developed by [Aether] & [other_contributors].",
   "other_contributors": "other contributors",
   "language": "Language",
 
@@ -278,7 +278,7 @@
   "no": "No",
   "please_read_the_documentation_on_how_to_fix_the_errors": "Please [read_the_documentation] on how to fix the errors.",
   "read_the_documentation": "read the documentation",
-  "installing_openbooru_version": "Installing OpenBooru [version]",
+  "installing_librebooru_version": "Installing LibreBooru [version]",
   "step_x_of_y": "Step [current]/[total]",
   "configuration": "Configuration",
   "colors": "Colors",
@@ -288,6 +288,6 @@
   "admin_account": "Admin Account",
   "click_next_to_create_the_default_admin_account": "Click next to create the default admin account.",
   "make_sure_to_change_the_username_and_password_after_logging_in": "Make sure to change the username and password after logging in!!!",
-  "thanks_for_installing_openbooru": "Thanks for installing OpenBooru!",
+  "thanks_for_installing_librebooru": "Thanks for installing LibreBooru!",
   "installation_complete": "Installation complete!"
 }

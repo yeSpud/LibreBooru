@@ -101,7 +101,7 @@
         {foreach from=$comments item=item key=key name=name}
             <p class="m-0 p-0" id="{$item["comment_id"]}" {if $item["deleted"]}style="color:red" {/if}>
                 <b>
-                    <a href="/account.php?a=p&id={$item["user_id"]}" target="_blank">{$item["username"]}</a>
+                    <a href="/account.php?a=p&id={$item["user_id"]}">{$item["username"]}</a>
                     <a href="#{$item["comment_id"]}"><span style="color:grey;">#{$item["comment_id"]}</span></a>
                     {replace s=$lang["at_timestamp"] n="[timestamp]" r=$item["timestamp"]} |
                     {$lang["score"]}: <span id="commentScore{$item["comment_id"]}">{$item["score"]}</span>

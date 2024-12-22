@@ -2,11 +2,11 @@
     <div class="container mt-10">
         <div class="sub_menu" style="display:flex">
             <p class="m-0 p-0" style="color:white;">
-                {replace s=$lang["footer_phrase"] n=["[OpenBooru]", "[version]", "[Aether]", "[other_contributors]"]
-                                r=['<a href="https://github.com/5ynchrogazer/OpenBooru" target="_blank" class="underline">OpenBooru</a>',
+                {replace s=$lang["footer_phrase"] n=["[LibreBooru]", "[version]", "[Aether]", "[other_contributors]"]
+                                r=['<a href="https://github.com/5ynchrogazer/LibreBooru" target="_blank" class="underline">LibreBooru</a>',
                                     "v{$version}",
                 '<a href="https://github.com/5ynchrogazer" target="_blank" class="underline">Aether</a>',
-                '<a href="https://github.com/5ynchrogazer/OpenBooru/graphs/contributors" target="_blank"
+                '<a href="https://github.com/5ynchrogazer/LibreBooru/graphs/contributors" target="_blank"
                 class="underline">'|cat:$lang["other_contributors"]|cat:'</a>']}
             </p>
             <span style="margin-left:auto;">

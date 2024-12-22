@@ -17,7 +17,7 @@
         <div>
             <noscript><small><b><i>{$lang["for_the_best_experience_enable_javascript"]}</i></b></small><br></noscript>
             <small>{replace s=$lang["serving_x_posts_so_far"] n="[count]" r=$postCount}</small>
-            <small><i>{replace s=$lang["openbooru_rocks_it"] n="[OpenBooru]" r='<a href="https://github.com/5ynchrogazer/OpenBooru" target="_blank">OpenBooru</a>'}</i></small>
+            <small><i>{replace s=$lang["librebooru_rocks_it"] n="[LibreBooru]" r='<a href="https://github.com/5ynchrogazer/LibreBooru" target="_blank">LibreBooru</a>'}</i></small>
         </div>
         <div>
             <br>
