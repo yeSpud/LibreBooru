@@ -6,7 +6,7 @@ $postCountSql = "SELECT COUNT(*) FROM posts WHERE is_approved = 1 AND deleted = 
 $postCount = $conn->query($postCountSql)->fetch_column();
 
 $tips = [
-    "Did you know that OpenBooru supports keyboard shortcuts? Press 'H' to view the help menu!",
+    "Did you know that LibreBooru supports keyboard shortcuts? Press 'H' to view the help menu!",
 ];
 $randomTip = $tips[array_rand($tips)];
 
