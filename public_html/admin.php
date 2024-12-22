@@ -18,8 +18,8 @@ if (isset($_GET["a"]) && !empty($_GET["a"]) && in_array($_GET["a"], $actions)) {
 
 if ($action == "u") {
     $branch = str_contains($version, "devel") ? "devel" : "master";
-    $latestStableVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/latest_stable.txt";
-    $latestDevelVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/latest_devel.txt";
+    $latestStableVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/latest_stable.txt";
+    $latestDevelVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/latest_devel.txt";
     $latestStableVersion = trim(file_get_contents($latestStableVersionFile));
     $latestDevelVersion = trim(file_get_contents($latestDevelVersionFile));
     $latestVersion = $branch === "devel" ? $latestDevelVersion : $latestStableVersion;

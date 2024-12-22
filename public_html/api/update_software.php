@@ -17,10 +17,10 @@ if (!in_array("admin", $permissions)) {
 
 $currentVersion = $version;
 $branch = str_contains($currentVersion, "devel") ? "devel" : "master";
-$latestStableVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/latest_stable.txt";
-$latestDevelVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/latest_devel.txt";
-$stableVersionsFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/versions_stable.json";
-$develVersionsFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/versions_devel.json";
+$latestStableVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/latest_stable.txt";
+$latestDevelVersionFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/latest_devel.txt";
+$stableVersionsFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/versions_stable.json";
+$develVersionsFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/versions_devel.json";
 
 $latestStableVersion = file_get_contents($latestStableVersionFile);
 $latestDevelVersion = file_get_contents($latestDevelVersionFile);
@@ -45,7 +45,7 @@ if (!file_exists($sqlPath)) {
 }
 
 foreach ($updateOrder as $upOrder) {
-    $sqlFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/sql/update-{$upOrder}.sql";
+    $sqlFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/sql/update-{$upOrder}.sql";
     // Check if file exists on GitHub
     if (file_get_contents($sqlFile)) {
         $sqlData = file_get_contents($sqlFile);
@@ -77,7 +77,7 @@ foreach ($updateOrder as $upOrder) {
 
 $requiresUpdates = [];
 foreach ($updateOrder as $update) {
-    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru-Extras/refs/heads/master/update/{$update}.json";
+    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru-Extras/refs/heads/master/update/{$update}.json";
     $updateData = json_decode(file_get_contents($updateFile), true);
     $requiresUpdates = array_merge($requiresUpdates, $updateData);
 }
@@ -99,7 +99,7 @@ if (!file_exists($tmpPathOld)) {
 
 foreach ($requiresUpdates as $update) {
     $currentUpdateFile = __DIR__ . "/../../" . $update;
-    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/OpenBooru/refs/heads/" . $branch . "/" . $update;
+    $updateFile = "https://raw.githubusercontent.com/5ynchrogazer/LibreBooru/refs/heads/" . $branch . "/" . $update;
     if (file_exists($currentUpdateFile)) {
         $currentUpdateData = file_get_contents($currentUpdateFile);
         $currentUpdatePath = $tmpPathOld . "/" . $update;
