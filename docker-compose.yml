@@ -1,14 +1,15 @@
 services:
-    database:
-        image: mysql
-        volumes:
-            - data: /var/lib/mysql
-        environment:
-            MYSQL_ROOT_PASSWORD:changeme
-            MYSQL_DATABASE:database
-    frontend:
-        build: .
-        ports: 8080:80
+  database:
+    image: mysql
+    volumes:
+      - data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_DATABASE: database
+  frontend:
+    build: .
+    ports:
+      - "8080:80"
 
 volumes:
-    data:
+  data:
