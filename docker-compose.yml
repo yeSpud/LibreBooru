@@ -1,0 +1,9 @@
+services:
+    database:
+        image: mysql:8.0
+        environment:
+            MYSQL_ROOT_PASSWORD:changeme
+            MYSQL_DATABASE:database
+    frontend:
+        build: .
+        ports: 8080:80
