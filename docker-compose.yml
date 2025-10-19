@@ -4,8 +4,8 @@ services:
     volumes:
       - data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: changeme
-      MYSQL_DATABASE: database
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: librebooru
   frontend:
     build: .
     ports:

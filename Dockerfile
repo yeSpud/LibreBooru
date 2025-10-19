@@ -5,4 +5,6 @@ RUN curl https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js -o /v
     git clone https://github.com/smarty-php/smarty /var/www/software/smarty && \
     git clone https://github.com/erusev/parsedown /var/www/software/parsedown && \
     sed -i 's/\/var\/www\/html/\/var\/www\/public_html/g' /etc/apache2/sites-enabled/000-default.conf && \
-    a2enmod headers
+    a2enmod headers && \
+    docker-php-ext-install mysqli && \
+
