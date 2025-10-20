@@ -3,6 +3,10 @@ services:
     image: mysql
     volumes:
       - data:/var/lib/mysql
+      - ./colors.env:/var/www/colors.env
+      - ./config.env:/var/www/config.env
+      - ./db.env:/var/www/db.env
+      - ./levels.env:/var/www/levels.env
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: librebooru
