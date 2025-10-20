@@ -1,3 +1,18 @@
+const colors = {
+    // Added categories: "spirit", "liqueur", "preparation", "garnish", "glass",
+    spirit: color_spirit,
+    liqueur: color_liqueur,
+    preparation: color_preparation,
+    garnish: color_garnish,
+    glass: color_glass,
+    copyright: color_copyright,
+    character: color_character,
+    artist: color_artist,
+    general: color_general,
+    meta: color_meta,
+    other: color_other,
+};
+
 function tag_search(input) {
   var search = input.value;
   var tags = search.split(" ");
@@ -36,14 +51,7 @@ function tag_search(input) {
         item.textContent = tag.name + " (" + tag.count + ")";
         item.style.padding = "3px";
         item.style.cursor = "pointer";
-        const colors = {
-          copyright: color_copyright,
-          character: color_character,
-          artist: color_artist,
-          general: color_general,
-          meta: color_meta,
-          other: color_other,
-        };
+
         let color = colors[tag.category] || colors.other;
         item.style.color = color;
         item.addEventListener("click", () => {
@@ -99,14 +107,6 @@ function wiki_search(input) {
         item.textContent = term.term;
         item.style.padding = "3px";
         item.style.cursor = "pointer";
-        const colors = {
-          copyright: color_copyright,
-          character: color_character,
-          artist: color_artist,
-          general: color_general,
-          meta: color_meta,
-          other: color_other,
-        };
         let color = colors[term.category] || colors.other;
         item.style.color = color;
         item.addEventListener("click", () => {

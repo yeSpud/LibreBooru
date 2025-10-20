@@ -19,6 +19,12 @@
     <!-- Get your jQuery here: https://cdnjs.com/libraries/jquery -->
     <script src="/assets/{$config["theme"]}/js/jquery.min.js"></script>
     <script>
+        // Added categories: "spirit", "liqueur", "preparation", "garnish", "glass",
+        const color_spirit = "{$colors["spirit"]}";
+        const color_liqueur = "{$colors["liqueur"]}";
+        const color_preparation = "{$colors["preparation"]}";
+        const color_garnish = "{$colors["garnish"]}";
+        const color_glass = "{$colors["glass"]}";
         const color_copyright = "{$colors["copyright"]}";
         const color_character = "{$colors["character"]}";
         const color_artist = "{$colors["artist"]}";

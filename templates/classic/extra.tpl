@@ -15,6 +15,12 @@
                 <input type="submit" name="edit" value="{$lang["edit"]}" class="mr-5">
                 <input type="submit" name="cancel" value="{$lang["cancel"]}"><br>
                 <select name="c" class="mt-10">
+                    <!-- Added categories: "spirit", "liqueur", "preparation", "garnish", "glass" -->
+                    <option value="spirit" {if $tag["category"] == "spirit"}selected{/if}>{$lang["spirit"]}</option>
+                    <option value="liqueur" {if $tag["category"] == "liqueur"}selected{/if}>{$lang["liqueur"]}</option>
+                    <option value="preparation" {if $tag["category"] == "preparation"}selected{/if}>{$lang["preparation"]}</option>
+                    <option value="garnish" {if $tag["category"] == "garnish"}selected{/if}>{$lang["garnish"]}</option>
+                    <option value="glass" {if $tag["category"] == "glass"}selected{/if}>{$lang["glass"]}</option>
                     <option value="copyright" {if $tag["category"] == "copyright"}selected{/if}>{$lang["copyright"]}</option>
                     <option value="character" {if $tag["category"] == "character"}selected{/if}>{$lang["character"]}</option>
                     <option value="artist" {if $tag["category"] == "artist"}selected{/if}>{$lang["artist"]}</option>

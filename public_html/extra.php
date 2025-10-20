@@ -56,7 +56,8 @@ if ($action == "t") {
             if ($locked != $tag["locked"] && $locked == 1) {
                 $locked_by = $user["user_id"];
             }
-            if (!in_array($category, ["copyright", "character", "artist", "general", "meta", "other"])) {
+            // Added categories: "spirit", "liqueur", "preparation", "garnish", "glass"
+            if (!in_array($category, ["spirit", "liqueur", "preparation", "garnish", "glass", "copyright", "character", "artist", "general", "meta", "other"])) {
                 $category = "general";
             }
 

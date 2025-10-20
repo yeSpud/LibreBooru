@@ -248,13 +248,26 @@ function determineCategory($tag)
     // "other" return "other"
     // Otherwise, return "general"
 
-    if (str_starts_with($tag, "copy") || str_starts_with($tag, "copy")) {
+    // Added categories: "spirit", "liqueur", "preparation", "garnish", "glass"
+    // (spirit|spi|liqueur|liq|preparation|prep|garnish|gar|glass|gl|copyright|copy|artist|art|character|char|general|meta|other)
+
+    if (str_starts_with($tag, "spi")) {
+        return "spirit";
+    } elseif (str_starts_with($tag, "liq") ) {
+        return "liqueur";
+    } elseif (str_starts_with($tag, "prep")) {
+        return "preparation";
+    } elseif (str_starts_with($tag, "gar")) {
+        return "garnish";
+    } elseif (str_starts_with($tag, "gl") ) {
+        return "glass";
+    } elseif (str_starts_with($tag, "copy")) {
         return "copyright";
-    } elseif (str_starts_with($tag, "char") || str_starts_with($tag, "char")) {
+    } elseif (str_starts_with($tag, "char")) {
         return "character";
-    } elseif (str_starts_with($tag, "art") || str_starts_with($tag, "art")) {
+    } elseif (str_starts_with($tag, "art") ) {
         return "artist";
-    } elseif (str_starts_with($tag, "gen") || str_starts_with($tag, "gen")) {
+    } elseif (str_starts_with($tag, "gen")) {
         return "general";
     } elseif (str_starts_with($tag, "meta")) {
         return "meta";

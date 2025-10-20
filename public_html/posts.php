@@ -349,16 +349,36 @@ if ($action == "s" || $action == "i") {
                                 $commitId = substr(md5(uniqid()), 0, 16);
                                 foreach ($tags as $tag) {
                                     // Check if tag starts with copyright:, artist:, character:, general:, meta: or other:, remove it and add new to $_tag
+                                    // Added categories: "spirit", "liqueur", "preparation", "garnish", "glass"
                                     $tag = strtolower($tag);
-                                    $_tag = preg_replace("/(copyright|copy|artist|art|character|char|general|meta|other):/", "", $tag);
-                                    if (preg_match("/(copyright|copy|artist|art|character|char|general|meta|other):/", $tag)) {
+                                    $_tag = preg_replace("/(spirit|spi|liqueur|liq|preparation|prep|garnish|gar|glass|gl|copyright|copy|artist|art|character|char|general|meta|other):/", "", $tag);
+                                    if (preg_match("/(spirit|spi|liqueur|liq|preparation|prep|garnish|gar|glass|gl|copyright|copy|artist|art|character|char|general|meta|other):/", $tag)) {
                                         $category = explode(":", $tag)[0];
-                                        if ($category == "copy") {
-                                            $category = "copyright";
-                                        } elseif ($category == "art") {
-                                            $category = "artist";
-                                        } elseif ($category == "char") {
-                                            $category = "character";
+                                        switch ($category) {
+                                            case "spi":
+                                                $category = "spirit";
+                                                break;
+                                            case "liq":
+                                                $category = "liqueur";
+                                                break;
+                                            case "prep":
+                                                $category = "preparation";
+                                                break;
+                                            case "gar":
+                                                $category = "garnish";
+                                                break;
+                                            case "gl":
+                                                $category = "glass";
+                                                break;
+                                            case "copy":
+                                                $category = "copyright";
+                                                break;
+                                            case "art":
+                                                $category = "artist";
+                                                break;
+                                            case "char":
+                                                $category = "character";
+                                                break;
                                         }
                                     } else {
                                         $category = "general";
@@ -752,7 +772,8 @@ if ($action == "s" || $action == "i") {
             $tag = trim(strtolower($tag));
             if (!empty($tag)) {
                 $category = determineCategory($tag);
-                $tag = preg_replace("/(copyright|copy|artist|art|character|char|general|meta|other):/", "", $tag);
+                // Added categories: "spirit", "liqueur", "preparation", "garnish", "glass"
+                $tag = preg_replace("/(spirit|spi|liqueur|liq|preparation|prep|garnish|gar|glass|gl|copyright|copy|artist|art|character|char|general|meta|other):/", "", $tag);
                 $stmt = $conn->prepare("SELECT tag_id FROM tags WHERE tag_name = ?");
                 $stmt->bind_param("s", $tag);
                 $stmt->execute();
