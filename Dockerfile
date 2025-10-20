@@ -10,3 +10,5 @@ RUN curl https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js -o /v
     docker-php-ext-install gd && \
     docker-php-ext-install mysqli && \
 
+    # DO NOT DO THE FOLLOWING
+    mkdir /var/www/__init/.tmp && chmod -R 777 /var/www/
